@@ -440,15 +440,4 @@ done
 main
 exit $?
 
-
-<<'__NOTES__'
-
-To do:
-    Input club games
-        name, date, side, opening
-    More position/move tests
-    More position/move tests for engine
-
-__NOTES__
-
 # EOF

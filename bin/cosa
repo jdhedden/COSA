@@ -1,7 +1,0 @@
-#!/bin/bash
-if [[ $LOC == home ]]; then
-    xfce4-terminal --zoom=2 --geometry=56x58 -x $0.sh "$@"
-else
-    $0.sh "$@"
-fi
-# EOF

@@ -1,0 +1,138 @@
+#!/bin/bash
+
+<<'__USAGE__'
+
+    To include:
+        UTILS_MISC=true
+        . $COSA/lib/utils
+
+__USAGE__
+
+
+# Enforce only once instance running at a time
+lock() {
+    eval "exec 9>'$COSA/tmp/.${UTIL[BASE]}.lock'"
+    if ! flock -n 9; then
+        e_warn "${UTIL[SELF]} already running"
+        exit 1
+    fi
+}
+
+# ---
+
+<<'__EX__'
+# Example usage:
+
+ask_confirm "Do you want to print a success message?"
+if is_confirmed; then
+  e_ok "Here is a success message"
+else
+  e_err "You did not ask for a success message"
+fi
+
+__EX__
+
+# Get yes/no response
+ask_confirm() {
+    printf "\n${AES[yel]}$*${AES[rst]}"
+    read -p " (y/N) "
+    printf "\n"
+}
+
+# Test whether the result of an 'ask' is a confirmation
+is_confirmed() {
+    [[ $REPLY =~ ^[Yy] ]]
+}
+
+# ---
+
+sorted() {
+    printf '%s\n' "$@" | sort
+}
+
+# ---
+
+part() {
+    local cmd=$1
+    local delim=$2
+    local item=$3
+    if [[ -n $4 ]]; then
+        eval "local -n _var=$4"
+    else
+        local _var
+    fi
+
+    # Usage
+    local usage="Usage:
+    part +1 'delim' "string" [varname]  # first part
+    part +$ 'delim' "string" [varname]  # last part
+    part -1 'delim' "string" [varname]  # first part removed
+    part -$ 'delim' "string" [varname]  # last part removed"
+
+    if [[ -z $1 || -z $2 || -z $3 ]]; then
+        e_err 'Missing arg(s)' >&2; e_info "$usage" >&2
+        return
+    fi
+
+    case $cmd in
+        +1) _var=${item%%${delim}*} ;;
+        +$) _var=${item##*${delim}} ;;
+        -1) _var=${item#*${delim}}  ;;
+        -$) _var=${item%${delim}*}  ;;
+        *) e_err 'Missing arg(s)' >&2 ; e_info "$usage" >&2
+            return 1
+            ;;
+    esac
+
+    if [[ -z $4 ]]; then
+        echo "$_var"
+    fi
+    return 0
+}
+
+# ---
+
+copy_hash() {
+    eval "local -n fm=$1 to=$2"
+    local idx
+    to=()
+    for idx in "${!fm[@]}"; do
+        to[$idx]=${fm[$idx]}
+    done
+}
+
+# ---
+
+# Make ANSI escape sequences
+make_es() {
+    local -A _es=(
+        [0]='0'  # zero = reset
+
+        [b]='1'
+        [i]='3'
+        [u]='4'
+        [n]='7'  # n(egative) = inverse
+
+        [r]='31'
+        [g]='32'
+        #[y]='33'
+        [y]='38;5;228'
+        #[b]='34'
+        [bl]='38;5;033'
+        [m]='35'
+        [c]='36'
+        [o]='38;5;202' # orange
+    )
+
+    local _ii _seq
+    for _ii in "$@"; do
+        if [[ -z ${_es[$_ii]} ]]; then
+            _seq+="$_ii;"
+        else
+            _seq+="${_es[$_ii]};"
+        fi
+    done
+    echo -n "[${_seq:0:-1}m"
+}
+
+# EOF

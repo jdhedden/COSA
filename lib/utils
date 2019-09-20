@@ -1,0 +1,197 @@
+#!/bin/bash
+
+<<'__USAGE__'
+
+    # Libraries that can be included
+    UTILS_MISC=true     # lock, ask, sorted, ...
+    UTILS_TREE=true
+
+    # Script associated files (defaults shown)
+    declare -A UTIL=(
+        [CFG]=${UTIL[DIR]}/${UTIL[BASE]}.cfg
+        [LOG]=$COSA/log/${UTIL[BASE]}_YYYYMMDD_HHMMSS.log
+        [TMP]=$COSA/tmp/${UTIL[BASE]}_$$.tmp
+    )
+
+    # Source this file's functionality
+    . $COSA/lib/utils
+
+    # Capture all output to log
+    log_all
+
+    # Usage message ('Usage: ' will be added)
+    UTIL[USAGE]="${UTIL[SELF]} [--help] [--debug] args...
+        More usage text
+    "
+
+    # Show usage and exit
+    if [[ $1 =~ -h ]]; then
+        usage
+    fi
+
+    # For use with e_debug
+    if [[ $1 =~ -d ]]; then
+        shift
+        UTIL[DEBUG]=true
+    fi
+
+    # Useful variables
+    ${UTIL[SELF]}   # Script file name
+    ${UTIL[BASE]}   # Script file name w/o extension
+    ${UTIL[DIR]}    # Directory where script file is located
+
+    # Private
+    UTIL[_LOG]  # Cleanup code to report log file, or remove if empty
+    UTIL[_TMP]  # Cleanup code to remove temp file
+
+__USAGE__
+
+
+declare -A UTIL
+
+# Script name
+UTIL[SELF]=${0##*/}
+UTIL[BASE]=${UTIL[SELF]%.*}
+
+# Script location
+if [[ -f $0 ]]; then
+    UTIL[DIR]=$(cd "$(dirname "$0")"; pwd)
+else
+    UTIL[DIR]=$PWD
+fi
+
+# Config file
+: ${UTIL[CFG]:=${UTIL[DIR]}/${UTIL[BASE]}.cfg}
+# Note: Loaded at EOF
+
+# Log file
+if [[ -z ${UTIL[LOG]} ]]; then
+    printf -v UTIL[LOG] '%s/log/%s_%(%Y%m%d_%H%M%S)T.log' $COSA ${UTIL[BASE]} -1
+fi
+mkdir -p $(dirname "${UTIL[LOG]}")
+UTIL[_LOG]='if [[ -s ${UTIL[LOG]} ]]; then echo "${AES[yel]}LOG${AES[rst]}: ${UTIL[LOG]}"; else rm -f ${UTIL[LOG]}; fi'
+
+log_all() {
+    exec &> >(tee -i ${UTIL[LOG]})
+}
+
+# Temp file
+: ${UTIL[TMP]:=$COSA/tmp/${UTIL[BASE]}_$$.tmp}
+mkdir -p $(dirname "${UTIL[TMP]}")
+UTIL[_TMP]='rm -f "${UTIL[TMP]}"'
+
+# Signal handlers
+trap 'e_log "SIGTERM - exiting" | tee -a "${UTIL[LOG]}"; exit 1' TERM
+trap 'e_log "SIGINT - exiting" | tee -a "${UTIL[LOG]}"; exit 1' INT
+
+# Cleanups
+trap "${UTIL[_TMP]}; ${UTIL[_LOG]}" EXIT
+
+
+# Usage
+usage() { echo -e "\nUsage: ${UTIL[USAGE]}\n"; exit 2; }
+
+
+# Include libraries
+if [[ $UTILS_MISC == true ]]; then
+    . $COSA/lib/utils_misc
+fi
+if [[ $UTILS_TREE == true ]]; then
+    . $COSA/lib/utils_tree
+fi
+
+
+# ANSI Escape Sequences
+declare -A AES
+if [[ -t 1 ]]; then
+    AES=(
+        [red]='[31m'
+        [grn]='[32m'
+        #[yel]='[33m'
+        [yel]='[38;5;228m'
+        #[blu]='[34m'
+        [blu]='[38;5;033m'
+        [mag]='[35m'
+        [cyn]='[36m'
+        [orn]='[38;5;202m' # orange
+
+        [rst]='[0m'  # reset
+        [bld]='[1m'
+        [ita]='[3m'
+        [unl]='[4m'
+        [inv]='[7m'
+    )
+else
+    AES=(
+        [red]=''
+        [grn]=''
+        [yel]=''
+        [blu]=''
+        [mag]=''
+        [cyn]=''
+        [orn]=''
+
+        [rst]=''
+        [bld]=''
+        [ita]=''
+        [unl]=''
+        [inv]=''
+    )
+fi
+
+# Echo commands
+e_attr() {
+    attr=$1
+    shift
+    printf "${AES[$attr]}%s${AES[rst]}\n" "$*"
+}
+e_hdr() {
+    printf "\n${AES[mag]}>>> ${AES[inv]}${AES[cyn]}%s${AES[rst]} ${AES[mag]}<<<${AES[rst]}\n" "$*"
+}
+e_info() {
+    e_attr yel "$*"
+}
+e_ok() {
+    printf "${AES[grn]}+ %s${AES[rst]}\n" "$*"
+}
+e_done() {
+    e_ok 'Done - okay'
+}
+e_err() {
+    printf "${AES[red]}${AES[bld]}!! %s${AES[rst]}\n" "$*"
+}
+e_warn() {
+    printf "${AES[orn]}=> %s${AES[rst]}\n" "$*"
+}
+e_ul() {
+    e_attr unl "$*"
+}
+e_note() {
+    printf "${AES[unl]}${AES[bld]}${AES[blu]}Note${AES[rst]}${AES[blu]}:  ${AES[rst]}%s\n" "$*"
+}
+e_ts() {
+    if [[ $1 == '-0' ]]; then
+        shift
+        printf "[%(%F)T %(%T)T] %s\n" -1 -1 "$*"
+    else
+        printf "${AES[cyn]}[${AES[yel]}%(%F)T ${AES[grn]}%(%T)T${AES[cyn]}]${AES[rst]} %s\n" -1 -1 "$*"
+    fi
+}
+e_log() {
+    printf '[%(%F %T)T] %s\n' -1 "$*"
+}
+UTIL[DEBUG]=false
+e_debug() {
+    # Turn on with 'UTIL[DEBUG]=true' in script
+    ${UTIL[DEBUG]} && printf '[%.9s %5d %-.10s %4d] %s\n' $(/bin/date '+%M:%S.%N') $BASHPID ${FUNCNAME[1]} ${BASH_LINENO[0]} "$*"
+}
+
+
+# Load config file
+if [[ -f ${UTIL[CFG]} ]]; then
+    if ! . "${UTIL[CFG]}"; then
+        e_warn 'Issue loading config file'
+    fi
+fi
+
+# EOF

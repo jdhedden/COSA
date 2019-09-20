@@ -55,7 +55,7 @@ cv_gen_board() {
     local gb_fls
     case $gb_fmt in
         -a) # ANSI escape sequences
-            if [[ $LOC == home ]]; then
+            if $FANCY_BOARD; then
                 gb_sq_fmt=( " %s ${X[0]}" "${X[q]} %s ${X[0]}" )
                 gb_pcs=( [K]="${X[w]}♔" [Q]="${X[w]}♕" [R]="${X[w]}♖"
                         [B]="${X[w]}♗" [N]="${X[w]}♘" [P]="${X[w]}♙"
@@ -393,23 +393,16 @@ cv_window() {
     #local nw_file=$1
     #local nw_start=$2
 
-    local tmp=
+    local nw_debug=
     if ${UTIL[DEBUG]}; then
-        tmp='-d'
+        nw_debug='-d'
     fi
-    if [[ $LOC == home ]]; then
-        xfce4-terminal --zoom=2 --geometry=56x58 -x $0 $tmp -w $1 -s $2
-    elif [[ $LOC == office ]]; then
-        /usr/bin/mintty -s 80,72 -e $0 $tmp -w $1 -s $2 &
-    elif [[ $LOC == phone ]]; then
-        $0 $tmp -s $line.$turn.$side -w ${GBL[DB_FILE]}
+    local nw_cmd=$(printf "$WINDOW_CMD" "$0 $nw_debug -w $1 -s $2")
+    if $WINDOW_BKG; then
+        $nw_cmd &
     else
-        GBL[ERR]="Multiple windows feature is not supported on this platform: LOC='$LOC'"
+        $nw_cmd
     fi
 }
-
-<<'__NOTES__'
-
-__NOTES__
 
 # EOF

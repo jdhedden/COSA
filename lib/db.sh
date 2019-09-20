@@ -14,13 +14,13 @@ cd_load() {
 
     if [[ -z $ld_f || ! -f $ld_f ]]; then
         local -a ld_dbs
-        for ii in ${UTIL[DAT]}/$ld_f*.dat; do
+        for ii in $COSA/dat/$ld_f*.dat; do
             if [[ ! -f $ii ]]; then break; fi
             part +$ / $ii ii
             part +1 . $ii ii
             ld_dbs+=("$ii")
         done
-        for ii in ${UTIL[DAT]}/engine/$ld_f*.dat; do
+        for ii in $COSA/dat/engine/$ld_f*.dat; do
             if [[ ! -f $ii ]]; then break; fi
             part +$ / $ii ii
             part +1 . $ii ii
@@ -29,16 +29,16 @@ cd_load() {
 
         if [[ ${#ld_dbs[@]} -eq 0 ]]; then
             if [[ -z $ld_f ]]; then
-                ld_f=${UTIL[DAT]}/Openings.dat  # default
+                ld_f=$COSA/dat/Openings.dat  # default
             else
-                ld_f=${UTIL[DAT]}/$ld_f.dat     # new
+                ld_f=$COSA/dat/$ld_f.dat     # new
             fi
             tree_init $1
             ld_u=true
             return 0
 
         elif [[ ${#ld_dbs[@]} -eq 1 ]]; then
-            ld_f=${UTIL[DAT]}/${ld_dbs[0]}.dat   # Only one DB
+            ld_f=$COSA/dat/${ld_dbs[0]}.dat   # Only one DB
 
         else
             echo
@@ -52,7 +52,7 @@ Which opening DB? '
                     fi
                 done
             done
-            ld_f=${UTIL[DAT]}/$ii.dat
+            ld_f=$COSA/dat/$ii.dat
         fi
     fi
 

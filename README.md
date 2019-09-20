@@ -7,6 +7,12 @@ to the Stockfish chess engine for analyzing board positions.
 
 ### Changelog
 
+* Version 0.0.0 - 2019-09-20
+    * Extracted configurable items to cfg/cfg.sh
+    * Added cfg/my_cfg.sh for user configuration customizations
+    * Miscellaneous cleanups
+    * Added versioning
+
 * 2019-09-20
     * Initial import to github
 

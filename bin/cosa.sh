@@ -6,14 +6,13 @@
 
 export COSA=$(realpath $(dirname $0)/..)
 . $COSA/lib/utils
-UTIL[LIB]=$(realpath ${UTIL[DIR]}/../lib)
-. ${UTIL[LIB]}/cfg.sh
+. $COSA/cfg/cfg.sh
 
 
 declare -A GBL=(
     [DB_FILE]=
     [START]=
-    [SAVE_DB]=true
+    [READONLY]=false
     [ERR]=
 )
 
@@ -79,6 +78,8 @@ main() {
     local rotate=false
     local move fen msg
     local tmp
+
+    echo -e "\nWelcome to ${AES[bld]}${AES[orn]}COSA${AES[rst]} (v$COSA_VERSION)"
 
     local save_db=false
     tmp=${GBL[DB_FILE]}
@@ -294,7 +295,7 @@ main() {
                         read -p 'Name for extracted DB: '
                         tmp=$REPLY
                         if [[ -n $tmp ]]; then
-                            tmp=${UTIL[DAT]}/$tmp.dat
+                            tmp=$COSA/dat/$tmp.dat
                             if [[ -f $tmp ]]; then
                                 echo "DB called '$REPLY' already exists: $tmp"
                                 tmp=
@@ -309,14 +310,14 @@ main() {
                 fi
                 ;;
             save)   # Write out DB
-                if ! ${GBL[SAVE_DB]}; then
+                if ${GBL[READONLY]}; then
                     e_warn 'Database file is currently opened in another window'
                     ask_confirm "Save '$(basename -s .dat ${GBL[DB_FILE]})' anyway?"
                     if is_confirmed; then
-                        GBL[SAVE_DB]=true
+                        GBL[READONLY]=false
                     fi
                 fi
-                if ${GBL[SAVE_DB]}; then
+                if ! ${GBL[READONLY]}; then
                     cd_save DB ${GBL[DB_FILE]}
                     save_db=false
                     msg="Database '$(basename -s .dat ${GBL[DB_FILE]})' saved to disk"
@@ -407,7 +408,7 @@ main() {
     done
 
     # Done - save changes to DB
-    if $save_db && ${GBL[SAVE_DB]}; then
+    if $save_db && ! ${GBL[READONLY]}; then
         cd_save DB ${GBL[DB_FILE]}
     fi
     return 0
@@ -427,7 +428,7 @@ while [[ -n $1 ]]; do
             shift 2
             ;;
         ?(-)-w*)
-            GBL[SAVE_DB]=false
+            GBL[READONLY]=true
             shift
             ;;
         *)

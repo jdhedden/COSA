@@ -138,11 +138,11 @@ main() {
                         side=${BASH_REMATCH[3]}
                     fi
                     if ! node_exists DB $line.$turn.$side.m; then
-                        msg="No such move: ${args[@]}"
+                        GBL[ERR]="No such move"
                         turn=1 side=w
                     fi
                 else
-                    msg="No such move: ${args[@]}"
+                    GBL[ERR]="No such move"
                 fi
                 ;;
             $)      # Go to last move
@@ -192,11 +192,10 @@ main() {
                 cd_add_moves DB $line turn side "${args[@]:1}"
                 save_db=true
                 cm_last DB $line turn side
-                e_debug "@ $line $turn $side"
                 ;;
             alt)    # Add alternate move / create new line
                 if node_exists DB $line.$turn.$side.a.${args[1]}; then
-                    msg="Alternate move ${args[1]} already exists"
+                    GBL[ERR]="Alternate move already exists"
                 else
                     hist+=($line.$turn.$side)
                     if cd_branch_line DB line $line $turn $side "${args[@]:1}"; then
@@ -239,13 +238,13 @@ main() {
                             save_db=true
                             msg="Starting point set to $turn.$side"
                         else
-                            msg="No such move: ${args[@]:2}"
+                            GBL[ERR]="No such move"
                         fi
                     else
-                        msg="No such move: ${args[@]:2}"
+                        GBL[ERR]="No such move"
                     fi
                 else
-                    msg="Unrecognized command: ${args[@]}"
+                    GBL[ERR]="Unrecognized command"
                     args[0]='?'
                 fi
                 ;;
@@ -384,7 +383,7 @@ main() {
                 elif [[ $(node_get DB $line.$turn.$side.m) == $move ]]; then
                     msg="Already on line with move '$move'"
                 else
-                    msg="Unrecognized command: $move"
+                    GBL[ERR]="Unrecognized command"
                 fi
                 ;;
         esac
@@ -392,7 +391,9 @@ main() {
         cv_moves_and_board DB $line $turn $side $rotate
 
         if [[ -n ${GBL[ERR]} ]]; then
-            echo -e "\n${GBL[ERR]}"
+            echo
+            e_err "${GBL[ERR]}"
+            e_warn "${args[@]}"
             GBL[ERR]=
         fi
         if [[ -n $msg ]]; then

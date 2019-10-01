@@ -161,6 +161,12 @@ cm_parse_move() {
     eval "local -n pm_mv=$1"
     pm_mv[move]=$2
 
+    # Support case-insensitive moves
+    if [[ ${pm_mv[move]} =~ ^([kqnr])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)$ ]]; then
+        cm_parse_move $1 ${2^}
+        return $?
+    fi
+
     # Piece move
     if [[ ${pm_mv[move]} =~ ^([KQBNR])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)$ ]]; then
         pm_mv[piece]=${BASH_REMATCH[1]}
@@ -185,11 +191,21 @@ cm_parse_move() {
             fi
             _x=$(( ${F2N[${pm_mv[file]}]} - ${F2N[${pm_mv[dest]:0:1}]} ))
             if [[ ${_x#-} -ne 1 ]]; then
+                if [[ ${pm_mv[file]} == b ]]; then
+                    if cm_parse_move $1 ${2^}; then  # b -> B
+                        return 0
+                    fi
+                fi
                 pm_mv[err]="Invalid move - files not adjacent: $2"
                 return 1
             fi
         else
             if [[ -n ${pm_mv[file]} ]]; then
+                if [[ ${pm_mv[file]} == b ]]; then
+                    if cm_parse_move $1 ${2^}; then  # b -> B
+                        return 0
+                    fi
+                fi
                 pm_mv[err]="Invalid move syntax: $2"
                 return 1
             fi
@@ -203,6 +219,9 @@ cm_parse_move() {
             elif [[ ! QBNR =~ ${pm_mv[promote]} ]]; then
                 pm_mv[err]="Invalid pawn promotion piece: $2"
                 return 1
+            elif [[ qbnr =~ ${pm_mv[promote]} ]]; then
+                pm_mv[promote]=${pm_mv[promote]^}
+                pm_mv[move]=${pm_mv[move]:0:-1}${pm_mv[promote]}
             fi
         else
             if [[ -n ${pm_mv[promote]} ]]; then
@@ -212,15 +231,20 @@ cm_parse_move() {
         fi
 
     # Castling
-    elif [[ ${pm_mv[move]} =~ ^(O-O(-O)?)([+#]?)$ ]]; then
-        pm_mv[castle]=${BASH_REMATCH[1]}
-        pm_mv[check]=${BASH_REMATCH[3]}
+    elif [[ ${pm_mv[move]} =~ ^[Oo0]-[Oo0](-[Oo0])?([+#]?)$ ]]; then
+        pm_mv[castle]='O-O'
+        if [[ -n ${BASH_REMATCH[1]} ]]; then
+            pm_mv[castle]+='-O'
+        fi
+        pm_mv[check]=${BASH_REMATCH[2]}
+        pm_mv[move]=${pm_mv[castle]}${pm_mv[check]}
         pm_mv[piece]=X
 
     else
         pm_mv[err]="Invalid move syntax: $2"
         return 1
     fi
+    return 0
 }
 
 
@@ -235,6 +259,7 @@ cm_move() {
         mp_brd[err]=${mp_mv[err]}
         return 1
     fi
+    mp_brd[move]=${mp_mv[move]}
 
     local -A mp_pcs
     local mp_foe
@@ -372,7 +397,7 @@ cm_move() {
                 done
             done
 
-        else  # King
+        elif [[ K == ${mp_mv[piece]} ]]; then
             for mp_x in 1 0 -1; do
                 mp_f=$(( ${F2N[${mp_mv[dest]:0:1}]} + mp_x ))
                 for mp_y in 1 0 -1; do
@@ -852,7 +877,15 @@ cm_last() {
     eval "local -n lm_t=$3"
     eval "local -n lm_s=$4"
 
-    lm_t=1; lm_s=2
+    local -a lm_turns
+    node_get $1 $2 lm_turns
+    if [[ ${#lm_turns[@]} -gt 5 ]]; then
+        lm_t=$(( ${#lm_turns[@]} - 5 ))
+    else
+        lm_t=1
+    fi
+
+    lm_s=w
 
     while cm_next $1 $2 $3 $4; do : ; done
 }

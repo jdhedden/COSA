@@ -170,7 +170,7 @@ __PARAMS__
                 fi
             fi
         done
-        echo -en "\e[?25h\015\033[K"  # Unhide cursor
+        echo -en "\e[?25h\015\e[K"  # Unhide cursor
     fi
 
     # Done
@@ -247,10 +247,9 @@ ce_engine() {
     echo -en "\e[?25l"  # Hide cursor
     local ii=1
     while [[ ${en_res[$ii]} =~ score\ cp\ ([0-9]+)\ .+\ pv\ (([a-h][1-8][a-h][1-8]\ )+) ]]; do
-        printf "\015\033Processing result #%d" $ii
+        printf "\015\033[KProcessing result #%d" $ii
         en_scr=${BASH_REMATCH[1]}
 
-        #e_debug "Processing #$ii"
         if ! ce_convert en_mvs "$en_fen" ${BASH_REMATCH[2]}; then
             return 1
         fi
@@ -281,7 +280,7 @@ ce_engine() {
 
         (( ii++ ))
     done
-    echo -en "\e[?25h\015\033[K"  # Unhide cursor
+    echo -en "\e[?25h\015\e[K"  # Unhide cursor
 
     # Add score to main line comment
     node_get en_db $en_l.c en_tmp

@@ -71,13 +71,12 @@ __HELP__
 
 
 main() {
-    local -A DB DB2 board
+    local -A DB DB2 board move
     local -a args hist ary
     local line turn=1 side=w
     local cur_line cur_turn cur_side
     local rotate=false
-    local move fen msg
-    local tmp
+    local fen msg tmp
 
     echo -e "\nWelcome to ${AES[bld]}${AES[orn]}COSA${AES[rst]} (v$COSA_VERSION)"
 
@@ -373,17 +372,18 @@ main() {
             \?)  :  # Help - falls through and is displayed below
                 ;;
             *)      # Use alternate move to jump to another line
-                move=${args[0]}
-                if node_get -q DB $line.$turn.$side.a.$move tmp; then
+                if ! cm_parse_move move ${args[0]}; then
+                    GBL[ERR]="Unrecognized command"
+                elif node_get -q DB $line.$turn.$side.a.${move[move]} tmp; then
                     hist+=($line.$turn.$side)
                     line=$tmp
                     if cd_fenify DB $line; then
                         save_db=true
                     fi
-                elif [[ $(node_get DB $line.$turn.$side.m) == $move ]]; then
+                elif [[ $(node_get DB $line.$turn.$side.m) == ${move[move]} ]]; then
                     msg="Already on line with move '$move'"
                 else
-                    GBL[ERR]="Unrecognized command"
+                    GBL[ERR]='No corresponding alternate line'
                 fi
                 ;;
         esac

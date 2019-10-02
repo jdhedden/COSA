@@ -159,7 +159,7 @@ cm_parse_move() {
     # )
 
     eval "local -n pm_mv=$1"
-    pm_mv[move]=$2
+    pm_mv=([move]=$2)
 
     # Support case-insensitive moves
     if [[ ${pm_mv[move]} =~ ^([kqnr])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)$ ]]; then

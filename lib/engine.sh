@@ -146,7 +146,7 @@ __PARAMS__
     fi
 
     # Do the analysis
-    local rn_min rn_sec
+    local rn_min rn_sec rn_depth=1
     if kill -0 $rn_pid >/dev/null 2>&1; then
         echo "go depth ${ENG[depth]}" | tee -a ${ENG[LOG]} >&6
         echo -en "\e[?25l"  # Hide cursor
@@ -157,9 +157,13 @@ __PARAMS__
                 fi
                 echo "$REPLY" >>${ENG[LOG]}
                 if [[ $REPLY =~ \ depth\ ([0-9]+)\ .+\ multipv\ ([0-9]+)\  ]]; then
-                    rn_sec=$SECONDS
-                    rn_min=$((rn_sec/60))
-                    printf "\015\033[K[%d:%02d] Depth: %d" $rn_min $((rn_sec - 60*rn_min)) ${BASH_REMATCH[1]}
+                    rn_res[${BASH_REMATCH[2]}]=$REPLY
+                    if [[ ${BASH_REMATCH[1]} -gt $rn_depth ]]; then
+                        rn_depth=${BASH_REMATCH[1]}
+                        rn_sec=$SECONDS
+                        rn_min=$((rn_sec/60))
+                        printf "\015\033[K[%d:%02d] Depth: %d" $rn_min $((rn_sec - 60*rn_min)) $rn_depth
+                    fi
                 elif [[ $REPLY =~ ^bestmove ]]; then
                     rn_res[time]=$SECONDS
                     break

@@ -26,6 +26,15 @@ WINDOW_CMD='%s'
 WINDOW_BKG=false
 
 
+declare -A GBL=(
+    [DB_FILE]=
+    [START]=
+    [READONLY]=false
+    [ERR]=
+    [MSG]=
+)
+
+
 # Engine parameters
 declare -A ENG=(
     # Configure in cfg/my_cfg if different

@@ -9,14 +9,6 @@ export COSA=$(realpath $(dirname $0)/..)
 . $COSA/cfg/cfg.sh
 
 
-declare -A GBL=(
-    [DB_FILE]=
-    [START]=
-    [READONLY]=false
-    [ERR]=
-)
-
-
 commands() {
     cat <<__HELP__
 ${AES[unl]}Commands${AES[rst]}
@@ -76,7 +68,7 @@ main() {
     local line turn=1 side=w
     local cur_line cur_turn cur_side
     local rotate=false
-    local fen msg tmp
+    local fen tmp
 
     echo -e "\nWelcome to ${AES[bld]}${AES[orn]}COSA${AES[rst]} (v$COSA_VERSION)"
 
@@ -119,7 +111,7 @@ main() {
             --)     # Jump back in history
                 tmp=$(( ${#hist[@]} - 1 ))
                 if [[ $tmp -lt 0 ]]; then
-                    msg='History stack is empty'
+                    GBL[MSG]='History stack is empty'
                 else
                     ary=(${hist[$tmp]//./ })
                     line=${ary[0]}
@@ -168,7 +160,7 @@ main() {
                     turn=${ary[1]}
                     side=${ary[2]}
                     unset hist[$tmp]
-                    msg='No other lines in database'
+                    GBL[MSG]='No other lines in database'
                 else
                     rotate=false
                 fi
@@ -178,10 +170,10 @@ main() {
                     if $rotate; then rotate=false; else rotate=true; fi
                 else
                     if node_del DB $line.r; then
-                        msg='Line set to default rotation'
+                        GBL[MSG]='Line set to default rotation'
                     else
                         node_set DB $line.r '-r'
-                        msg="Line set to rotation for black"
+                        GBL[MSG]="Line set to rotation for black"
                     fi
                     save_db=true
                     rotate=false
@@ -220,7 +212,7 @@ main() {
                     # Set line as main
                     node_set DB $line.m 1
                     save_db=true
-                    msg='Set as a main line of study'
+                    GBL[MSG]='Set as a main line of study'
                 elif [[ ${args[1]} == start ]]; then
                     # Set starting point
                     if [[ -z ${args[2]} ]]; then
@@ -235,7 +227,7 @@ main() {
                         if node_exists DB $line.$turn.$side.m; then
                             node_set DB $line.s "$turn.$side"
                             save_db=true
-                            msg="Starting point set to $turn.$side"
+                            GBL[MSG]="Starting point set to $turn.$side"
                         else
                             GBL[ERR]="No such move"
                         fi
@@ -302,7 +294,7 @@ main() {
                     done
                     cd_save DB2 "$tmp"
                     unset DB2
-                    msg="New DB saved to $tmp"
+                    GBL[MSG]="New DB saved to $tmp"
                     cv_window $tmp $line.$turn.$side
                     cd_choose_line DB line turn side
                 fi
@@ -318,19 +310,20 @@ main() {
                 if ! ${GBL[READONLY]}; then
                     cd_save DB ${GBL[DB_FILE]}
                     save_db=false
-                    msg="Database '$(basename -s .dat ${GBL[DB_FILE]})' saved to disk"
+                    GBL[MSG]="Database '$(basename -s .dat ${GBL[DB_FILE]})' saved to disk"
                 fi
                 ;;
             list)   # List move in line
                 cd_gather_moves DB ary $line
-                msg="${ary[*]}"
+                GBL[MSG]="${ary[*]}"
                 ;;
             fen)
-                node_get DB $line.$turn.$side.f msg
+                node_get DB $line.$turn.$side.f tmp
+                GBL[MSG]="$tmp"
                 ;;
             par*)  # Set engine parameters
                 ce_params
-                msg="Engine parameters:
+                GBL[MSG]="Engine parameters:
   Depth: ${ENG[depth]}
   Lines: ${ENG[/MultiPV]}
   Threads: ${ENG[/Threads]}
@@ -381,7 +374,7 @@ main() {
                         save_db=true
                     fi
                 elif [[ $(node_get DB $line.$turn.$side.m) == ${move[move]} ]]; then
-                    msg="Already on line with move '$move'"
+                    GBL[MSG]="Already on line with move '$move'"
                 else
                     GBL[ERR]='No corresponding alternate line'
                 fi
@@ -396,9 +389,9 @@ main() {
             e_warn "${args[@]}"
             GBL[ERR]=
         fi
-        if [[ -n $msg ]]; then
-            echo -e "\n$msg"
-            msg=
+        if [[ -n ${GBL[MSG]} ]]; then
+            echo -e "\n${GBL[MSG]}"
+            GBL[MSG]=
         fi
         if [[ ${args[0]} == '?' ]]; then
             echo

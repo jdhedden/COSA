@@ -222,7 +222,7 @@ ce_engine() {
             GBL[ERR]=${en_res[err]}
             return 1
         fi
-        GBL[ERR]="Analysis time: ${en_res[time]} secs."
+        GBL[MSG]="Analysis time: ${en_res[time]} secs."
     fi
 
     # Create new DB

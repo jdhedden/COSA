@@ -73,11 +73,12 @@ cd_save() {
     if [[ -f $sd_f ]]; then
         local sd_p sd_n sd_e
         part -$ / "$sd_f" sd_p
+        sd_p="${sd_p/\/engine/}/_archive"
         part +$ / "$sd_f" sd_n
         part +$ . "$sd_n" sd_e
         part -$ . "$sd_n" sd_n
-        mkdir -p "${sd_p/\/engine/}/_archive"
-        mv "$sd_f" "$sd_p/_archive/${sd_n}_$(date '+%Y%m%d_%H%M%S').$sd_e"
+        mkdir -p "sd_p"
+        mv "$sd_f" "$sd_p/${sd_n}_$(date '+%Y%m%d_%H%M%S').$sd_e"
     fi
 
     {   echo -e '#!/bin/bash\n'

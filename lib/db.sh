@@ -68,16 +68,17 @@ Which opening DB? '
 cd_save() {
     # USAGE: cd_save DB [$file]
     #local sd_db=$1
-    local sd_f=$2
+    local sd_f=$(realpath $2)
 
     if [[ -f $sd_f ]]; then
         local sd_p sd_n sd_e
         part -$ / "$sd_f" sd_p
+        sd_p="${sd_p/\/engine/}/_archive"
         part +$ / "$sd_f" sd_n
         part +$ . "$sd_n" sd_e
         part -$ . "$sd_n" sd_n
-        mkdir -p "${sd_p/\/engine/}/_archive"
-        mv "$sd_f" "$sd_p/_archive/${sd_n}_$(date '+%Y%m%d_%H%M%S').$sd_e"
+        mkdir -p "sd_p"
+        mv "$sd_f" "$sd_p/${sd_n}_$(date '+%Y%m%d_%H%M%S').$sd_e"
     fi
 
     {   echo -e '#!/bin/bash\n'
@@ -353,7 +354,7 @@ cd_set_moves() {
     local sm_mv
     for sm_mv in "${@:6}"; do
         if cm_move sm_brd "$sm_mv"; then
-            node_set $1 $2.$sm_t.$sm_s.m "$sm_mv"
+            node_set $1 $2.$sm_t.$sm_s.m "${sm_brd[move]}"
             node_set $1 $2.$sm_t.$sm_s.f "${sm_brd[fen]}"
             cm_next -f $1 $2 sm_t sm_s
         else

@@ -146,7 +146,7 @@ __PARAMS__
     fi
 
     # Do the analysis
-    local rn_min rn_sec
+    local rn_min rn_sec rn_depth=1
     if kill -0 $rn_pid >/dev/null 2>&1; then
         echo "go depth ${ENG[depth]}" | tee -a ${ENG[LOG]} >&6
         echo -en "\e[?25l"  # Hide cursor
@@ -157,16 +157,20 @@ __PARAMS__
                 fi
                 echo "$REPLY" >>${ENG[LOG]}
                 if [[ $REPLY =~ \ depth\ ([0-9]+)\ .+\ multipv\ ([0-9]+)\  ]]; then
-                    rn_sec=$SECONDS
-                    rn_min=$((rn_sec/60))
-                    printf "\015\033[K[%d:%02d] Depth: %d" $rn_min $((rn_sec - 60*rn_min)) ${BASH_REMATCH[1]}
+                    rn_res[${BASH_REMATCH[2]}]=$REPLY
+                    if [[ ${BASH_REMATCH[1]} -gt $rn_depth ]]; then
+                        rn_depth=${BASH_REMATCH[1]}
+                        rn_sec=$SECONDS
+                        rn_min=$((rn_sec/60))
+                        printf "\015\033[K[%d:%02d] Depth: %d" $rn_min $((rn_sec - 60*rn_min)) $rn_depth
+                    fi
                 elif [[ $REPLY =~ ^bestmove ]]; then
                     rn_res[time]=$SECONDS
                     break
                 fi
             fi
         done
-        echo -e "\e[?25h"  # Unhide cursor
+        echo -en "\e[?25h\015\e[K"  # Unhide cursor
     fi
 
     # Done
@@ -222,7 +226,7 @@ ce_engine() {
             GBL[ERR]=${en_res[err]}
             return 1
         fi
-        GBL[ERR]="Analysis time: ${en_res[time]} secs."
+        GBL[MSG]="Analysis time: ${en_res[time]} secs."
     fi
 
     # Create new DB
@@ -240,11 +244,12 @@ ce_engine() {
     # Convert engine results create lines
     local en_scr en_scr1 en_tmp en_ll en_tt en_ss
     en_mvs=()
+    echo -en "\e[?25l"  # Hide cursor
     local ii=1
     while [[ ${en_res[$ii]} =~ score\ cp\ ([0-9]+)\ .+\ pv\ (([a-h][1-8][a-h][1-8]\ )+) ]]; do
+        printf "\015\033[KProcessing result #%d" $ii
         en_scr=${BASH_REMATCH[1]}
 
-        #e_debug "Processing #$ii"
         if ! ce_convert en_mvs "$en_fen" ${BASH_REMATCH[2]}; then
             return 1
         fi
@@ -275,6 +280,7 @@ ce_engine() {
 
         (( ii++ ))
     done
+    echo -en "\e[?25h\015\e[K"  # Unhide cursor
 
     # Add score to main line comment
     node_get en_db $en_l.c en_tmp

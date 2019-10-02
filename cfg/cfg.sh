@@ -8,7 +8,7 @@ put your configuration customizations in cfg/my_cfh.sh.
 __NOTES__
 
 
-COSA_VERSION='0.0.0'
+COSA_VERSION='0.1.0'
 
 UTILS_MISC=true
 . $COSA/lib/utils_misc
@@ -24,6 +24,15 @@ UTILS_TREE=true
 # For the 'win' command within COSA.  (Customize in cfg/my_cfg.sh.)
 WINDOW_CMD='%s'
 WINDOW_BKG=false
+
+
+declare -A GBL=(
+    [DB_FILE]=
+    [START]=
+    [READONLY]=false
+    [ERR]=
+    [MSG]=
+)
 
 
 # Engine parameters

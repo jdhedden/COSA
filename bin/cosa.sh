@@ -9,14 +9,6 @@ export COSA=$(realpath $(dirname $0)/..)
 . $COSA/cfg/cfg.sh
 
 
-declare -A GBL=(
-    [DB_FILE]=
-    [START]=
-    [READONLY]=false
-    [ERR]=
-)
-
-
 commands() {
     cat <<__HELP__
 ${AES[unl]}Commands${AES[rst]}
@@ -71,13 +63,12 @@ __HELP__
 
 
 main() {
-    local -A DB DB2 board
+    local -A DB DB2 board move
     local -a args hist ary
     local line turn=1 side=w
     local cur_line cur_turn cur_side
     local rotate=false
-    local move fen msg
-    local tmp
+    local fen tmp
 
     echo -e "\nWelcome to ${AES[bld]}${AES[orn]}COSA${AES[rst]} (v$COSA_VERSION)"
 
@@ -120,7 +111,7 @@ main() {
             --)     # Jump back in history
                 tmp=$(( ${#hist[@]} - 1 ))
                 if [[ $tmp -lt 0 ]]; then
-                    msg='History stack is empty'
+                    GBL[MSG]='History stack is empty'
                 else
                     ary=(${hist[$tmp]//./ })
                     line=${ary[0]}
@@ -138,11 +129,11 @@ main() {
                         side=${BASH_REMATCH[3]}
                     fi
                     if ! node_exists DB $line.$turn.$side.m; then
-                        msg="No such move: ${args[@]}"
+                        GBL[ERR]="No such move"
                         turn=1 side=w
                     fi
                 else
-                    msg="No such move: ${args[@]}"
+                    GBL[ERR]="No such move"
                 fi
                 ;;
             $)      # Go to last move
@@ -169,7 +160,7 @@ main() {
                     turn=${ary[1]}
                     side=${ary[2]}
                     unset hist[$tmp]
-                    msg='No other lines in database'
+                    GBL[MSG]='No other lines in database'
                 else
                     rotate=false
                 fi
@@ -179,10 +170,10 @@ main() {
                     if $rotate; then rotate=false; else rotate=true; fi
                 else
                     if node_del DB $line.r; then
-                        msg='Line set to default rotation'
+                        GBL[MSG]='Line set to default rotation'
                     else
                         node_set DB $line.r '-r'
-                        msg="Line set to rotation for black"
+                        GBL[MSG]="Line set to rotation for black"
                     fi
                     save_db=true
                     rotate=false
@@ -192,11 +183,10 @@ main() {
                 cd_add_moves DB $line turn side "${args[@]:1}"
                 save_db=true
                 cm_last DB $line turn side
-                e_debug "@ $line $turn $side"
                 ;;
             alt)    # Add alternate move / create new line
                 if node_exists DB $line.$turn.$side.a.${args[1]}; then
-                    msg="Alternate move ${args[1]} already exists"
+                    GBL[ERR]="Alternate move already exists"
                 else
                     hist+=($line.$turn.$side)
                     if cd_branch_line DB line $line $turn $side "${args[@]:1}"; then
@@ -222,7 +212,7 @@ main() {
                     # Set line as main
                     node_set DB $line.m 1
                     save_db=true
-                    msg='Set as a main line of study'
+                    GBL[MSG]='Set as a main line of study'
                 elif [[ ${args[1]} == start ]]; then
                     # Set starting point
                     if [[ -z ${args[2]} ]]; then
@@ -237,15 +227,15 @@ main() {
                         if node_exists DB $line.$turn.$side.m; then
                             node_set DB $line.s "$turn.$side"
                             save_db=true
-                            msg="Starting point set to $turn.$side"
+                            GBL[MSG]="Starting point set to $turn.$side"
                         else
-                            msg="No such move: ${args[@]:2}"
+                            GBL[ERR]="No such move"
                         fi
                     else
-                        msg="No such move: ${args[@]:2}"
+                        GBL[ERR]="No such move"
                     fi
                 else
-                    msg="Unrecognized command: ${args[@]}"
+                    GBL[ERR]="Unrecognized command"
                     args[0]='?'
                 fi
                 ;;
@@ -304,7 +294,7 @@ main() {
                     done
                     cd_save DB2 "$tmp"
                     unset DB2
-                    msg="New DB saved to $tmp"
+                    GBL[MSG]="New DB saved to $tmp"
                     cv_window $tmp $line.$turn.$side
                     cd_choose_line DB line turn side
                 fi
@@ -320,19 +310,20 @@ main() {
                 if ! ${GBL[READONLY]}; then
                     cd_save DB ${GBL[DB_FILE]}
                     save_db=false
-                    msg="Database '$(basename -s .dat ${GBL[DB_FILE]})' saved to disk"
+                    GBL[MSG]="Database '$(basename -s .dat ${GBL[DB_FILE]})' saved to disk"
                 fi
                 ;;
             list)   # List move in line
                 cd_gather_moves DB ary $line
-                msg="${ary[*]}"
+                GBL[MSG]="${ary[*]}"
                 ;;
             fen)
-                node_get DB $line.$turn.$side.f msg
+                node_get DB $line.$turn.$side.f tmp
+                GBL[MSG]="$tmp"
                 ;;
             par*)  # Set engine parameters
                 ce_params
-                msg="Engine parameters:
+                GBL[MSG]="Engine parameters:
   Depth: ${ENG[depth]}
   Lines: ${ENG[/MultiPV]}
   Threads: ${ENG[/Threads]}
@@ -374,17 +365,18 @@ main() {
             \?)  :  # Help - falls through and is displayed below
                 ;;
             *)      # Use alternate move to jump to another line
-                move=${args[0]}
-                if node_get -q DB $line.$turn.$side.a.$move tmp; then
+                if ! cm_parse_move move ${args[0]}; then
+                    GBL[ERR]="Unrecognized command"
+                elif node_get -q DB $line.$turn.$side.a.${move[move]} tmp; then
                     hist+=($line.$turn.$side)
                     line=$tmp
                     if cd_fenify DB $line; then
                         save_db=true
                     fi
-                elif [[ $(node_get DB $line.$turn.$side.m) == $move ]]; then
-                    msg="Already on line with move '$move'"
+                elif [[ $(node_get DB $line.$turn.$side.m) == ${move[move]} ]]; then
+                    GBL[MSG]="Already on line with move '$move'"
                 else
-                    msg="Unrecognized command: $move"
+                    GBL[ERR]='No corresponding alternate line'
                 fi
                 ;;
         esac
@@ -392,12 +384,14 @@ main() {
         cv_moves_and_board DB $line $turn $side $rotate
 
         if [[ -n ${GBL[ERR]} ]]; then
-            echo -e "\n${GBL[ERR]}"
+            echo
+            e_err "${GBL[ERR]}"
+            e_warn "${args[@]}"
             GBL[ERR]=
         fi
-        if [[ -n $msg ]]; then
-            echo -e "\n$msg"
-            msg=
+        if [[ -n ${GBL[MSG]} ]]; then
+            echo -e "\n${GBL[MSG]}"
+            GBL[MSG]=
         fi
         if [[ ${args[0]} == '?' ]]; then
             echo

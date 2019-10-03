@@ -33,6 +33,7 @@ cmt -l "..."        Change description for line
 add _move_ ...      Add move(s) to end of line
 del                 Delete from current move to end
 del -l              Delete current line of study
+del -d              Delete databases
 
 alt _move_ ...      Create new line with alt. move(s)
 
@@ -54,6 +55,7 @@ win                 Open currently line in a new window
 
 DEBUG [true|false]  Turn on/set debug mode
 DEFEN               Purge FENs from database
+CLEAN [-e]          Delete logs or engine result files
 
 ^D                  Exit (saves database)
 ABORT               Exit without saving database
@@ -70,7 +72,7 @@ main() {
     local rotate=false
     local fen tmp
 
-    echo -e "\nWelcome to ${AES[bld]}${AES[orn]}COSA${AES[rst]} (v$COSA_VERSION)"
+    echo -e "\n${GBL[WELCOME]}"
 
     local save_db=false
     tmp=${GBL[DB_FILE]}
@@ -97,7 +99,7 @@ main() {
     fi
 
     cv_moves_and_board DB $line $turn $side $rotate
-    echo
+    echo -e "\n${GBL[WELCOME]}\n"
 
     while read -p "[$turn.$side] ? "; do
         args=($REPLY)
@@ -240,7 +242,12 @@ main() {
                 fi
                 ;;
             del)    # Delete lines and moves
-                if [[ ${args[1]} == '-l' || ( $turn -eq 1 && $side == w ) ]]; then
+                if [[ ${args[1]} == '-d' ]]; then
+                    tmp=
+                    if cd_delete tmp; then
+                        GBL[MSG]="Deleted $tmp"
+                    fi
+                elif [[ ${args[1]} == '-l' || ( $turn -eq 1 && $side == w ) ]]; then
                     ask_confirm "Are you sure you want to delete this\nline of study?"
                     if is_confirmed; then
                         cd_del_line DB $line
@@ -346,6 +353,15 @@ main() {
                 cd_defenify DB
                 cd_fenify DB $line
                 save_db=true
+                ;;
+            CLEAN)
+                if [[ ${args[1]} == '-e' ]]; then
+                    rm -f $COSA/dat/engine/*
+                    GBL[MSG]='Engine result files deleted'
+                else
+                    rm -f $COSA/log/*
+                    GBL[MSG]='Log files deleted'
+                fi
                 ;;
             DEBUG)  # DEBUG [true|false]
                 if [[ -z ${args[1]} ]]; then

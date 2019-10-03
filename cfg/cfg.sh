@@ -27,6 +27,7 @@ WINDOW_BKG=false
 
 
 declare -A GBL=(
+    [WELCOME]="Welcome to ${AES[bld]}${AES[orn]}COSA${AES[rst]} (v$COSA_VERSION)"
     [DB_FILE]=
     [START]=
     [READONLY]=false

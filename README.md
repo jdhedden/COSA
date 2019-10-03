@@ -8,6 +8,10 @@ positions.
 
 ### Changelog
 
+* Version 0.2.0 - 2019-10-03
+    * Command to cleanup logs and/or engine result file
+    * Added command line usage
+
 * Version 0.1.0 - 2019-10-02
     * Case-insensitivity for moves
 

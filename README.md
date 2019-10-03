@@ -6,7 +6,7 @@ provides a front-end to the Stockfish chess engine for analyzing board
 positions.
 
 
-### Changelog
+#### Changelog
 
 * Version 0.2.0 - 2019-10-03
     * Command to cleanup logs and/or engine result file
@@ -23,5 +23,9 @@ positions.
 
 * 2019-09-20
     * Initial import to github
+
+#### Keywords (for ye olde search engines)
+
+Chess / Stockfish / Bash / Shell / Terminal / Command line
 
 ###### EOF

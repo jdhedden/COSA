@@ -2,11 +2,12 @@
 
 # Chess Opening Study Aid
 
-# Usage:  cosa.sh [--debug] [db_file [-s $line.$turn.$side] [-w]]
-
 export COSA=$(realpath $(dirname $0)/..)
 . $COSA/lib/utils
 . $COSA/cfg/cfg.sh
+
+
+UTIL[USAGE]="${UTIL[SELF]} [--help|--version] [--debug] [db_file]"
 
 
 commands() {
@@ -440,6 +441,14 @@ while [[ -n $1 ]]; do
         ?(-)-w*)
             GBL[READONLY]=true
             shift
+            ;;
+        ?(-)-v*)
+            echo "COSA v$COSA_VERSION"
+            exit 1
+            ;;
+        ?(-)-h*|?)
+            usage
+            exit 1
             ;;
         *)
             GBL[DB_FILE]=$1

@@ -1,5 +1,61 @@
 #!/bin/bash
 
+cd_choose() {
+    eval "local -n cd_f=$1"
+
+    if [[ -n $cd_f && -f $COSA/dat/$cd_f.dat ]]; then
+        cd_f=$COSA/dat/$cd_f.dat
+        return 0
+    fi
+
+    local -a cd_dbs
+    local ii
+    for ii in $COSA/dat/$cd_f*.dat; do
+        if [[ ! -f $ii ]]; then break; fi
+        part +$ / $ii ii
+        part +1 . $ii ii
+        cd_dbs+=("$ii")
+    done
+    for ii in $COSA/dat/engine/$cd_f*.dat; do
+        if [[ ! -f $ii ]]; then break; fi
+        part +$ / $ii ii
+        part +1 . $ii ii
+        cd_dbs+=("engine/$ii")
+    done
+
+    if [[ ${#cd_dbs[@]} -eq 0 ]]; then
+        if [[ -z $cd_f ]]; then
+            cd_f=$COSA/dat/Openings.dat  # default
+        else
+            cd_f=$COSA/dat/$cd_f.dat     # new
+        fi
+        return 1   # Is a new DB
+
+    elif [[ ${#cd_dbs[@]} -eq 1 ]]; then
+        cd_f=$COSA/dat/${cd_dbs[0]}.dat   # Only one DB
+
+    else
+        echo
+        PS3='
+Which opening DB? '
+        ii=
+        while [[ -z $ii ]]; do
+            select ii in '<Cancel>' "${cd_dbs[@]}"; do
+                if [[ -n $ii ]]; then
+                    break
+                fi
+            done
+        done
+        if [[ $ii == '<Cancel>' ]]; then
+            cd_f=
+            return 1
+        fi
+        cd_f=$COSA/dat/$ii.dat
+    fi
+    return 0   # Not a new DB
+}
+
+
 cd_load() {
     # USAGE: cd_load DB [file]
     eval "local -n ld_db=$1"
@@ -13,46 +69,11 @@ cd_load() {
     local ii
 
     if [[ -z $ld_f || ! -f $ld_f ]]; then
-        local -a ld_dbs
-        for ii in $COSA/dat/$ld_f*.dat; do
-            if [[ ! -f $ii ]]; then break; fi
-            part +$ / $ii ii
-            part +1 . $ii ii
-            ld_dbs+=("$ii")
-        done
-        for ii in $COSA/dat/engine/$ld_f*.dat; do
-            if [[ ! -f $ii ]]; then break; fi
-            part +$ / $ii ii
-            part +1 . $ii ii
-            ld_dbs+=("engine/$ii")
-        done
-
-        if [[ ${#ld_dbs[@]} -eq 0 ]]; then
-            if [[ -z $ld_f ]]; then
-                ld_f=$COSA/dat/Openings.dat  # default
-            else
-                ld_f=$COSA/dat/$ld_f.dat     # new
-            fi
+        if ! cd_choose $2; then
+            if [[ -z $ld_f ]]; then return 1; fi
             tree_init $1
             ld_u=true
             return 0
-
-        elif [[ ${#ld_dbs[@]} -eq 1 ]]; then
-            ld_f=$COSA/dat/${ld_dbs[0]}.dat   # Only one DB
-
-        else
-            echo
-            PS3='
-Which opening DB? '
-            ii=
-            while [[ -z $ii ]]; do
-                select ii in "${ld_dbs[@]}"; do
-                    if [[ -n $ii ]]; then
-                        break
-                    fi
-                done
-            done
-            ld_f=$COSA/dat/$ii.dat
         fi
     fi
 
@@ -62,6 +83,17 @@ Which opening DB? '
         fi
     done <$ld_f
     return 0
+}
+
+
+cd_delete() {
+    eval "local -n rm_f=$1"
+
+    if cd_choose $1; then
+        rm -f $rm_f
+        return 0
+    fi
+    return 1
 }
 
 

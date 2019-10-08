@@ -35,32 +35,6 @@ Which paramater? '
 }
 
 
-ce_convert() {
-    # USAGE: ce_convert moves "$fen" "${moves[@]}"
-
-    eval "local -n cm_mvs=$1"
-    #local cm_fen=$2
-
-    local -A cm_brd
-    cm_set_board cm_brd "$2"
-
-    cm_mvs=()
-    local cm_m cm_mv
-    for cm_m in ${@:3}; do
-        if cm_move_eng cm_brd $cm_m cm_mv; then
-            cm_mvs+=($cm_mv)
-        else
-            GBL[ERR]="BUG: Engine move failure
-  Error: '${cm_brd[err]}'
-  Move: $cm_m
-  FEN: '${cm_brd[fen]}'"
-            return 1
-        fi
-    done
-    return 0
-}
-
-
 ce_run() {
     # USAGE: ce_run "$fen" results
 
@@ -246,19 +220,14 @@ ce_engine() {
 
     # Convert engine results create lines
     local en_scr en_scr1 en_tmp en_ll en_tt en_ss
-    en_mvs=()
     echo -en "\e[?25l"  # Hide cursor
     local ii=1
     while [[ ${en_res[$ii]} =~ score\ cp\ ([0-9]+)\ .+\ pv\ (([a-h][1-8][a-h][1-8]\ )+) ]]; do
         printf "\015\033[KProcessing result #%d" $ii
         en_scr=${BASH_REMATCH[1]}
 
-        if ! ce_convert en_mvs "$en_fen" ${BASH_REMATCH[2]}; then
-            return 1
-        fi
-
         if [[ $ii == 1 ]]; then
-            if ! cd_add_moves en_db $en_l en_tt en_ss "${en_mvs[@]}"; then
+            if ! cd_add_moves en_db $en_l en_tt en_ss "${BASH_REMATCH[2]}"; then
                 return 1
             fi
             # Copy comment
@@ -273,7 +242,7 @@ ce_engine() {
             fi
 
         else
-            if ! cd_branch_line en_db en_ll $en_l $en_tt $en_ss "${en_mvs[@]}"; then
+            if ! cd_branch_line en_db en_ll $en_l $en_tt $en_ss "${BASH_REMATCH[2]}"; then
                 return 1
             fi
             # Add score to line comment

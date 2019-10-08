@@ -228,6 +228,7 @@ ce_engine() {
 
         if [[ $ii == 1 ]]; then
             if ! cd_add_moves en_db $en_l en_tt en_ss "${BASH_REMATCH[2]}"; then
+                echo -en "\e[?25h\015\e[K"  # Unhide cursor
                 return 1
             fi
             # Copy comment
@@ -243,6 +244,7 @@ ce_engine() {
 
         else
             if ! cd_branch_line en_db en_ll $en_l $en_tt $en_ss "${BASH_REMATCH[2]}"; then
+                echo -en "\e[?25h\015\e[K"  # Unhide cursor
                 return 1
             fi
             # Add score to line comment

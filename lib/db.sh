@@ -383,12 +383,21 @@ cd_set_moves() {
 
     cd_truncate_line $1 $2 $3 $4
 
-    local sm_mv
+    local sm_mv sm_m
     for sm_mv in "${@:6}"; do
         if [[ $sm_mv =~ ^[0-9]+\.$ ]]; then
             continue
         fi
-        if cm_move sm_brd "$sm_mv"; then
+        # Add engine moves
+        if [[ $sm_mv =~ ^[a-h][1-8][a-h][1-8]$ ]]; then
+            if cm_move_eng sm_brd $sm_mv sm_m; then
+                node_set $1 $2.$sm_t.$sm_s.m "$sm_m"
+                node_set $1 $2.$sm_t.$sm_s.f "${sm_brd[fen]}"
+                cm_next -f $1 $2 sm_t sm_s
+            else
+                GBL[ERR]="Error adding move '$sm_mv': ${sm_brd[err]}"
+            fi
+        elif cm_move sm_brd "$sm_mv"; then
             node_set $1 $2.$sm_t.$sm_s.m "${sm_brd[move]}"
             node_set $1 $2.$sm_t.$sm_s.f "${sm_brd[fen]}"
             cm_next -f $1 $2 sm_t sm_s

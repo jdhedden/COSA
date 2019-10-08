@@ -385,6 +385,9 @@ cd_set_moves() {
 
     local sm_mv
     for sm_mv in "${@:6}"; do
+        if [[ $sm_mv =~ ^[0-9]+\.$ ]]; then
+            continue
+        fi
         if cm_move sm_brd "$sm_mv"; then
             node_set $1 $2.$sm_t.$sm_s.m "${sm_brd[move]}"
             node_set $1 $2.$sm_t.$sm_s.f "${sm_brd[fen]}"

@@ -359,8 +359,8 @@ cd_branch_line() {
 
 #####
 
-cdmt_line() {
-    # USAGE: cdmt_line DB line
+cd_mt_line() {
+    # USAGE: cd_mt_line DB line
     #local mt_db=$1
     eval "local -n mt_l=$2"
 
@@ -432,7 +432,7 @@ cd_gen_line() {
     #local gl_db=$1
     eval "local -n gl_l=$2"
 
-    cdmt_line $1 $2
+    cd_mt_line $1 $2
     cd_set_moves $1 $gl_l 1 w '' "${@:3}"
 }
 

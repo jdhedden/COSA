@@ -537,6 +537,7 @@ cm_move() {
             # En passant capture
             mp_y="${mp_mv[dest]:0:1}${mp_mv[orig]:1:1}"
             mp_p=${mp_brd[$mp_y]}
+            unset mp_brd[$mp_y]
             mp_brd[$mp_p]=${mp_brd[$mp_p]/$mp_y/}
         elif [[ -n ${mp_mv[xture]} ]]; then
             mp_p=${mp_brd[${mp_mv[dest]}]}

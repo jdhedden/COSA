@@ -50,7 +50,10 @@ ce_convert() {
         if cm_move_eng cm_brd $cm_m cm_mv; then
             cm_mvs+=($cm_mv)
         else
-            GBL[ERR]="BUG: Engine move failure\n  Error: '${cm_brd[err]}'\n  Move: $cm_m\n  FEN: '${cm_brd[fen]}'"
+            GBL[ERR]="BUG: Engine move failure
+  Error: '${cm_brd[err]}'
+  Move: $cm_m
+  FEN: '${cm_brd[fen]}'"
             return 1
         fi
     done

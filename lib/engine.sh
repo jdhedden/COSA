@@ -227,7 +227,7 @@ ce_engine() {
         en_scr=${BASH_REMATCH[1]}
 
         if [[ $ii == 1 ]]; then
-            if ! cd_add_moves en_db $en_l en_tt en_ss "${BASH_REMATCH[2]}"; then
+            if ! cd_add_moves en_db $en_l en_tt en_ss ${BASH_REMATCH[2]}; then
                 echo -e "\e[?25h"  # Unhide cursor
                 return 1
             fi
@@ -243,7 +243,7 @@ ce_engine() {
             fi
 
         else
-            if ! cd_branch_line en_db en_ll $en_l $en_tt $en_ss "${BASH_REMATCH[2]}"; then
+            if ! cd_branch_line en_db en_ll $en_l $en_tt $en_ss ${BASH_REMATCH[2]}; then
                 echo -e "\e[?25h"  # Unhide cursor
                 return 1
             fi

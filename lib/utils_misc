@@ -135,4 +135,13 @@ make_es() {
     echo -n "[${_seq:0:-1}m"
 }
 
+# ---
+
+call_stack() {
+    e_info 'Call stack:'
+    local ii=0
+    while caller $ii; do ((ii++)); done
+    e_info '---'
+}
+
 # EOF

@@ -103,14 +103,12 @@ cd_save() {
     local sd_f=$(realpath $2)
 
     if [[ -f $sd_f ]]; then
-        local sd_p sd_n sd_e
-        part -$ / "$sd_f" sd_p
-        sd_p="${sd_p/\/engine/}/_archive"
+        local sd_n sd_e
         part +$ / "$sd_f" sd_n
         part +$ . "$sd_n" sd_e
         part -$ . "$sd_n" sd_n
-        mkdir -p "sd_p"
-        mv "$sd_f" "$sd_p/${sd_n}_$(date '+%Y%m%d_%H%M%S').$sd_e"
+        mkdir -p "$COSA/dat/_archive"
+        mv "$sd_f" "$COSA/dat/_archive/${sd_n}_$(date '+%Y%m%d_%H%M%S').$sd_e"
     fi
 
     {   echo -e '#!/bin/bash\n'
@@ -359,8 +357,8 @@ cd_branch_line() {
 
 #####
 
-cdmt_line() {
-    # USAGE: cdmt_line DB line
+cd_mt_line() {
+    # USAGE: cd_mt_line DB line
     #local mt_db=$1
     eval "local -n mt_l=$2"
 
@@ -432,7 +430,7 @@ cd_gen_line() {
     #local gl_db=$1
     eval "local -n gl_l=$2"
 
-    cdmt_line $1 $2
+    cd_mt_line $1 $2
     cd_set_moves $1 $gl_l 1 w '' "${@:3}"
 }
 

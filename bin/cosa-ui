@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# USAGE:  cosa-ui [--start|--stop]
+
+if [[ $1 =~ stop ]]; then
+    if killall busybox 2>/dev/null; then
+        echo 'Backend stopped'
+        exit 0
+    else
+        echo 'Backend was not running'
+        exit 1
+    fi
+fi
+
+PORT=6054
+
+export COSA=$(realpath $(dirname $0)/..)
+
+if which busybox >/dev/null; then
+    cd $COSA/web
+    killall busybox
+    busybox httpd -p $PORT -h $COSA/web
+    echo 'Backend started'
+
+    # Launch web page
+    if which xdg-open >/dev/null; then
+        xdg-open http://127.0.0.1:$PORT/
+    elif which cygstart >/dev/null; then
+        cygstart http://localhost:$PORT/
+    else
+        echo "Open http://127.0.0.1:$PORT/ in web browser"
+    fi
+else
+    echo 'BusyBox not found'
+    exit 1
+fi
+
+# EOF

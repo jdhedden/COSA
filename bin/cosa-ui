@@ -16,16 +16,15 @@ PORT=6054
 
 export COSA=$(realpath $(dirname $0)/..)
 
-if which busybox >/dev/null; then
-    cd $COSA/web
+if which busybox >/dev/null 2>&1; then
     killall busybox 2>/dev/null
-    busybox httpd -p $PORT -h $COSA/web
+    busybox httpd -c $COSA/cfg/httpd.cfg -p $PORT -h $COSA/bin
     echo 'Backend started'
 
     # Launch web page
-    if which xdg-open >/dev/null; then
+    if which xdg-open >/dev/null 2>&1; then
         xdg-open http://127.0.0.1:$PORT/ >/dev/null 2>&1
-    elif which cygstart >/dev/null; then
+    elif which cygstart >/dev/null 2>&1; then
         cygstart http://localhost:$PORT/
     else
         echo "Open http://127.0.0.1:$PORT/ in web browser"

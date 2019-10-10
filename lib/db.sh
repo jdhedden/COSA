@@ -1,5 +1,27 @@
 #!/bin/bash
 
+cd_list() {
+    eval "local -n ld_dbs=$1"
+    #local ld_f=$2
+
+    ld_dbs=()
+    local ii
+    for ii in $COSA/dat/$2*.dat; do
+        if [[ ! -f $ii ]]; then break; fi
+        part +$ / "$ii" ii
+        part +1 . "$ii" ii
+        ld_dbs+=("$ii")
+    done
+    for ii in $COSA/dat/engine/$2*.dat; do
+        if [[ ! -f $ii ]]; then break; fi
+        part +$ / "$ii" ii
+        part +1 . "$ii" ii
+        ld_dbs+=("engine/$ii")
+    done
+    return 0
+}
+
+
 cd_choose() {
     eval "local -n cd_f=$1"
 
@@ -9,19 +31,7 @@ cd_choose() {
     fi
 
     local -a cd_dbs
-    local ii
-    for ii in $COSA/dat/$cd_f*.dat; do
-        if [[ ! -f $ii ]]; then break; fi
-        part +$ / $ii ii
-        part +1 . $ii ii
-        cd_dbs+=("$ii")
-    done
-    for ii in $COSA/dat/engine/$cd_f*.dat; do
-        if [[ ! -f $ii ]]; then break; fi
-        part +$ / $ii ii
-        part +1 . $ii ii
-        cd_dbs+=("engine/$ii")
-    done
+    cd_list cd_dbs $cd_f
 
     if [[ ${#cd_dbs[@]} -eq 0 ]]; then
         if [[ -z $cd_f ]]; then
@@ -166,6 +176,21 @@ cd_defenify() {
 
 #####
 
+cd_list_lines() {
+    eval "local -n ll_db=$1"
+    eval "local -n ll_lns=$2"
+
+    local ll_l ll_c
+    for ll_l in $(node_get -q $1); do
+        if [[ -v "ll_db[$ll_l.m]" ]]; then
+            part +$ . $ll_l ll_l
+            node_get $1 $ll_l.c ll_c
+            ll_lns[${ll_c// /_}]="$ll_l|$ll_c"
+        fi
+    done
+    return 0
+}
+
 cd_choose_line() {
     # USAGE: cd_choose_line DB line turn side
     eval "local -n cl_db=$1"
@@ -174,19 +199,15 @@ cd_choose_line() {
     eval "local -n cl_s=$4"
 
     local -A cl_lns
-    local cl_x cl_i
-    for cl_x in $(node_get -q $1); do
-        if [[ -v "cl_db[$cl_x.m]" ]]; then
-            part +$ . $cl_x cl_l
-            node_get $1 $cl_x.c cl_i
-            cl_lns["${cl_i// /_}"]=$cl_l
-        fi
-    done
+    cd_list_lines $1 cl_lns
 
     if [[ ${#cl_lns[@]} -eq 0 ]]; then
-        return 1    # Create a new line
-    elif [[ ${#cl_lns[@]} -gt 1 ]]; then
-        cl_l=       # Only one line
+        return 1            # Create a new line
+    elif [[ ${#cl_lns[@]} -eq 1 ]]; then
+        cl_l=${cl_lns[${!cl_lns[@]}]}   # Only one line
+        part +1 '|' "$cl_l" cl_l
+    else
+        cl_l=
     fi
 
     echo
@@ -195,7 +216,8 @@ Which line? '
     while [[ -z $cl_l ]]; do
         select cl_x in $(sorted "${!cl_lns[@]}"); do
             if [[ -n $cl_x ]]; then
-                cl_l=${cl_lns["$cl_x"]}
+                cl_l=${cl_lns[$cl_x]}
+                part +1 '|' "$cl_l" cl_l
                 break
             fi
         done

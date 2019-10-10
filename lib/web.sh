@@ -5,10 +5,12 @@
 cw_head() {
     # USAGE: cs_head title
     cat <<__CSS__
+Content-Type: text/html
+
 <html>
 <head>
 <meta charset="UTF-8">
-<title>$@</title>
+<title>${1:-Welcome to COSA!}</title>
 <style type="text/css">
 .chessboard {
     width: 320px;
@@ -45,6 +47,7 @@ __CSS__
 cw_tail() {
     echo -e "</body>\n</html>"
 }
+
 
 cw_moves_table() {
     # TODO

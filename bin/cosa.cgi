@@ -8,22 +8,18 @@
 . $COSA/lib/web.sh
 
 
-<<__GBL__
-
-Global Variables
-
-  From URL:
+# Global Variables
+<<'__URL__'
     D = Encoded name of DB
     L, T, S = line, turn and side
     R = Rotate board
-
-  Generated locally:
+__URL__
+<<'__LOCAL__'
     DB_NAME = Decoded name of DB
     DB_FILE = Full path to DB
     DB = The loaded DB data
-    SAVE_DB
-
-__GBL__
+__LOCAL__
+SAVE_DB=false
 
 
 show_dbs() {
@@ -102,7 +98,9 @@ mt_db() {
 
 
 show_board() {
-    cw_head
+    # Name of line
+    local cmt
+    node_get -q DB $L.c cmt
 
     # Rotate board?
     local rot
@@ -115,11 +113,16 @@ show_board() {
        fi
     fi
 
+    # Generate board
     local fen
-    get_node DB $L.$T.$S.f fen
-
+    node_get DB $L.$T.$S.f fen
     declare -a brd
-    cv_gen_board -h $rot $fen brd
+    cv_gen_board -h $rot "$fen" brd
+
+    # Ouput page
+    cw_head "$DB_NAME"
+
+    echo "$cmt<br>"
 
     local ii
     for ii in "${brd[@]}"; do
@@ -161,7 +164,7 @@ main() {
         return 0
     fi
 
-    if db_fenify DB $L; then
+    if cd_fenify DB $L; then
         SAVE_DB=true
     fi
 
@@ -176,6 +179,11 @@ main() {
 
     # Show board
     show_board
+
+    # Write DB changes to disk
+    if $SAVE_DB; then
+        cd_save DB $DB_FILE
+    fi
 }
 
 

@@ -69,7 +69,7 @@ if [[ -z ${UTIL[LOG]} ]]; then
     printf -v UTIL[LOG] '%s/log/%s_%(%Y%m%d_%H%M%S)T.log' $COSA ${UTIL[BASE]} -1
 fi
 mkdir -p $(dirname "${UTIL[LOG]}")
-UTIL[_LOG]='if [[ -s ${UTIL[LOG]} ]]; then echo "${AES[yel]}LOG${AES[rst]}: ${UTIL[LOG]}"; else rm -f ${UTIL[LOG]}; fi'
+UTIL[_LOG]='if [[ ! -s ${UTIL[LOG]} ]]; then rm -f ${UTIL[LOG]}; fi'
 
 log_all() {
     exec &> >(tee -i ${UTIL[LOG]})

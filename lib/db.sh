@@ -137,18 +137,20 @@ cd_fenify() {
     local fl_t=1 fl_s=w
 
     # Step through moves until we find an unprocessed move
+    local fl_f
     while node_exists $1 $2.$fl_t.$fl_s.f; do
+        node_get $1 $2.$fl_t.$fl_s.f fl_f
         if ! cm_next $1 $2 fl_t fl_s; then
             return 1   # All FEN-ified
         fi
     done
 
     local -A fl_bd
-    cm_set_board fl_bd "$fen"
+    cm_set_board fl_bd "$fl_f"
 
     # Process remaining moves
     local fl_mv fl_upd=false
-    while node_get -q $1 $line.$fl_t.$fl_s.m fl_mv; do
+    while node_get -q $1 $2.$fl_t.$fl_s.m fl_mv; do
         if ! cm_move fl_bd "$fl_mv"; then
             GBL[ERR]="Failed to fenify: l=$2 t=$fl_t s=$fl_s m=$fl_mv '${fl_bd[err]}'"
             return 1
@@ -703,11 +705,12 @@ cd_extract() {
 _.l
     line
 
-_.l.c/m/s/r
+_.l.c/m/s/r/t
     comment
     main
     start
     rotate
+    timestamp
 
 _.l.t.s
     turn

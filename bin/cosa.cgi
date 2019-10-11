@@ -14,12 +14,9 @@
     L, T, S = line, turn and side
     R = Rotate board
 __URL__
-<<'__LOCAL__'
-    DB_NAME = Decoded name of DB
-    DB_FILE = Full path to DB
+<<'__HERE__'
     DB = The loaded DB data
-__LOCAL__
-SAVE_DB=false
+__HERE__
 
 
 show_dbs() {
@@ -27,12 +24,12 @@ show_dbs() {
     cd_list dbs
 
     if [[ ${#dbs[@]} -eq 0 ]]; then
-        DB_NAME=Openings     # No DBs - use default
-        D=$DB_NAME
+        GBL[DB_NAME]=Openings     # No DBs - use default
+        D=${GBL[DB_NAME]}
         return 1
     elif [[ ${#dbs[@]} -eq 1 ]]; then
-        DB_NAME=${dbs[0]}    # Only one DB
-        D=$(busybox httpd -e "$DB_NAME")
+        GBL[DB_NAME]=${dbs[0]}    # Only one DB
+        D=$(busybox httpd -e "${GBL[DB_NAME]}")
         return 1
     fi
 
@@ -71,10 +68,10 @@ show_lines() {
         return 1
     fi
 
-    cw_head "$DB_NAME"
+    cw_head "${GBL[DB_NAME]}"
 
     cat <<__WEB__
-Opening DB: $DB_NAME<br>
+Opening DB: ${GBL[DB_NAME]}<br>
 Which line?<ul>
 __WEB__
 
@@ -120,7 +117,7 @@ show_board() {
     cv_gen_board -h $rot "$fen" brd
 
     # Ouput page
-    cw_head "$DB_NAME"
+    cw_head "${GBL[DB_NAME]}"
 
     echo "$cmt<br>"
 
@@ -134,9 +131,9 @@ show_board() {
 
 
 main() {
-    local ii
-    for ii in ${QUERY_STRING//&/ }; do
-        eval "$ii"
+    local tmp
+    for tmp in ${QUERY_STRING//&/ }; do
+        eval "$tmp"
     done
 
     # Get DB
@@ -145,12 +142,13 @@ main() {
             return 0
         fi
     else
-        DB_NAME=$(busybox httpd -d "$D")
+        GBL[DB_NAME]=$(busybox httpd -d "$D")
     fi
 
-    DB_FILE="$COSA/dat/$DB_NAME.dat"
     declare -A DB
-    cd_load DB DB_FILE
+    tmp="$COSA/dat/${GBL[DB_NAME]}.dat"
+    cd_load DB tmp
+    GBL[DB_FILE]="$tmp"
 
     # Get line, turn and side
     if [[ -z $L ]]; then
@@ -164,8 +162,9 @@ main() {
         return 0
     fi
 
+    local save_db=false
     if cd_fenify DB $L; then
-        SAVE_DB=true
+        save_db=true
     fi
 
     if [[ -z $T ]]; then
@@ -181,8 +180,8 @@ main() {
     show_board
 
     # Write DB changes to disk
-    if $SAVE_DB; then
-        cd_save DB $DB_FILE
+    if $save_db; then
+        cd_save DB "${GBL[DB_FILE]}"
     fi
 }
 

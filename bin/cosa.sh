@@ -316,7 +316,7 @@ main() {
                     fi
                 fi
                 if ! ${GBL[READONLY]}; then
-                    cd_save DB ${GBL[DB_FILE]}
+                    cd_save DB "${GBL[DB_FILE]}"
                     save_db=false
                     GBL[MSG]="Database '$(basename -s .dat ${GBL[DB_FILE]})' saved to disk"
                 fi
@@ -423,7 +423,7 @@ main() {
 
     # Done - save changes to DB
     if $save_db && ! ${GBL[READONLY]}; then
-        cd_save DB ${GBL[DB_FILE]}
+        cd_save DB "${GBL[DB_FILE]}"
     fi
     return 0
 }

@@ -9,8 +9,9 @@ Content-Type: text/html
 
 <html>
 <head>
-<meta charset="UTF-8">
 <title>${1:-Welcome to COSA!}</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1.0">
 <style type="text/css">
 .chessboard {
     width: 320px;

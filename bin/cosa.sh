@@ -58,7 +58,7 @@ DEBUG [true|false]  Turn on/set debug mode
 DEFEN               Purge FENs from database
 CLEAN [-e]          Delete logs or engine result files
 
-^D                  Exit (saves database)
+^D|exit|quit        Exit (saves database)
 ABORT               Exit without saving database
 
 __HELP__
@@ -380,6 +380,9 @@ main() {
                 return 1
                 ;;
             \?)  :  # Help - falls through and is displayed below
+                ;;
+            quit|exit)
+                break
                 ;;
             *)      # Use alternate move to jump to another line
                 if ! cm_parse_move move ${args[0]}; then

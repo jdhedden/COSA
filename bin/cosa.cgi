@@ -15,6 +15,7 @@ Global Variables
   From URL:
     D = Encoded name of DB
     L, T, S = line, turn and side
+    R = Rotate board
 
   Generated locally:
     DB_NAME = Decoded name of DB
@@ -102,6 +103,28 @@ mt_db() {
 
 show_board() {
     cw_head
+
+    # Rotate board?
+    local rot
+    node_get -q DB $L.r rot
+    if [[ -n $R ]]; then
+       if [[ -z $rot ]]; then
+           rot=-r
+       else
+           rot=
+       fi
+    fi
+
+    local fen
+    get_node DB $L.$T.$S.f fen
+
+    declare -a brd
+    cv_gen_board -h $rot $fen brd
+
+    local ii
+    for ii in "${brd[@]}"; do
+        echo "$ii"
+    done
 
     cw_tail
 }

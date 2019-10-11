@@ -74,41 +74,4 @@ cw_moves_table() {
     echo '</table>'
 }
 
-
-cw_gen_page() {
-    # USAGE: cw_gen_page [-r] "$fen"|board ???
-    # TODO
-
-    local gp_rot
-    if [[ $1 == -r ]]; then
-        gp_rot=$1
-        shift
-    fi
-
-    local gp_f
-    if [[ $1 =~ / ]]; then
-        local -a gp_ff=($1)
-        $gp_f=${gp_ff[0]}
-    else
-        eval "local -n gp_bb=$1"
-        $gp_f=${gp_bb[board]}
-    fi
-
-    eval "local -n gp_mvs=$2"  # ???
-
-    # Print board
-    local gp_brd gp_txt
-    cw_gen_board -h $gp_rot "$$gp_f" brd
-    for gp_txt in "${gp_brd[@]}"; do
-        echo "$gp_txt"
-    done
-
-    # Print moves
-    #cw_moves_table
-
-    # Close
-    echo '</body></html>'
-}
-
-
 # EOF

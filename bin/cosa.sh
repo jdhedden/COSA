@@ -143,9 +143,9 @@ main() {
                 cm_last DB $line turn side
                 ;;
             !)      # Go to starting move
-                if node_get -q DB $line.s tmp; then
-                    part +1 . $tmp turn
-                    part +$ . $tmp side
+                if node_get -q DB $line.s turn; then
+                    part +$ . $turn side
+                    part +1 . $turn turn
                 else
                     turn=1; side=w
                 fi

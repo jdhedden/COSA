@@ -20,6 +20,7 @@ Global Variables
     DB_NAME = Decoded name of DB
     DB_FILE = Full path to DB
     DB = The loaded DB data
+    SAVE_DB
 
 __GBL__
 
@@ -93,14 +94,15 @@ __WEB__
 }
 
 
-show_position() {
-    local -A db
+mt_db() {
+    # TODO
+    return 0
+}
 
 
-    cd_choose_line db line turn side
-
+show_board() {
     cw_head
-    echo "Selection: $DB"
+
     cw_tail
 }
 
@@ -111,6 +113,7 @@ main() {
         eval "$ii"
     done
 
+    # Get DB
     if [[ -z $D ]]; then
         if show_dbs; then
             return 0
@@ -123,6 +126,7 @@ main() {
     declare -A DB
     cd_load DB DB_FILE
 
+    # Get line, turn and side
     if [[ -z $L ]]; then
         if show_lines; then
             return 0
@@ -130,13 +134,25 @@ main() {
     fi
 
     if [[ -z $L ]]; then
-        :
-        # No lines
+        mt_db
+        return 0
     fi
 
-    # Start pos
-    if [[ -z $S ]]; then
+    if db_fenify DB $L; then
+        SAVE_DB=true
     fi
+
+    if [[ -z $T ]]; then
+        if node_get -q DB $L.s T; then
+            part +$ . $T S
+            part +1 . $T T
+        else
+            T=1; S=w
+        fi
+    fi
+
+    # Show board
+    show_board
 }
 
 

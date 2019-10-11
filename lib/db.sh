@@ -158,6 +158,7 @@ cd_fenify() {
         cm_next -f $1 $2 fl_t fl_s
     done
     if $fl_upd; then
+        node_set $1 $2.t $(date +%s)
         return 0
     fi
     return 1
@@ -169,6 +170,8 @@ cd_defenify() {
     local key
     for key in "${!dd_db[@]}"; do
         if [[ $key =~ ^_\.[0-9]+\.[0-9]+\.(b|w)\.f$ ]]; then
+            node_del $1 $key
+        elif [[ $key =~ ^_\.[0-9]+\.t$ ]]; then
             node_del $1 $key
         fi
     done

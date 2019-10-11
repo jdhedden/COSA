@@ -14,7 +14,7 @@ fi
 
 PORT=6054
 export COSA=$(realpath $(dirname $0)/..)
-$COSA/cfg/httpd.conf
+CFG=$COSA/cfg/httpd.conf
 
 cat >$CFG <<__CFG__
 H:$COSA/bin
@@ -24,7 +24,7 @@ __CFG__
 
 if which busybox >/dev/null 2>&1; then
     killall busybox 2>/dev/null
-    busybox httpd -p $PORT -c $CFG
+    busybox httpd -c $CFG -p $PORT
     echo 'Backend started'
 
     # Launch web page

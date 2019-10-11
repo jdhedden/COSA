@@ -50,28 +50,35 @@ cw_tail() {
 }
 
 
-cw_moves_table() {
-    # TODO
+cw_moves_list() {
+    # USAGE: cw_moves_table DB $L moves
+    #local mt_db=$1
+    #local mt_l=$2
+    eval "local -n mt_tbl=$3"
 
-    local mt_t mt_w mt_b
-    local mt_fmt='<tr><td>%s.</td><td>%s</td><td>%s</td></tr>\n'
+    # Gather moves
+    local -a mt_mvs
+    cd_gather_moves $1 mt_mvs $2
 
-    echo '<table>'
+    local mt_x mt_t=1 mt_w
+    local mt_fmt="<td>%s.</td><td><a href=\"/cosa.cgi?D=$D&L=$2&T=%s&S=w&R=$R\">%s</a></td><td><a href=\"/cosa.cgi?D=$D&L=$2&T=%s&S=b&R=$R\">%s</a></td>"
+    local mt_fmt_w="<td>%s.</td><td><a href=\"/cosa.cgi?D=$D&L=$2&T=%s&S=w&R=$R\">%s</a></td><td>&nbsp;</td>"
 
-    for item in "$@"; do
-        if [[ -z $mt_t ]]; then
-            if [[ $item =~ \.\.\.$ ]]; then
-                mt_w='&#2026;'
-            fi
-            mt_t=${item//./}
-        elif [[ -z $mt_w ]]; then
-            mt_w=$item
+    local ii
+    for ii in "${mt_mvs[@]}"; do
+        if [[ -z $mt_w ]]; then
+            mt_w=$ii
         else
-            printf "$mt_fmt" $mt_t $mt_w $mt_b
+            printf -v mt_x "$mt_fmt" $mt_t $mt_t $mt_w $mt_t $ii
+            mt_tbl+=("$mt_x")
+            mt_w=
+            ((mt_t++))
         fi
     done
-
-    echo '</table>'
+    if [[ -n $mt_w ]]; then
+        printf -v mt_x "$mt_fmt_w" $mt_t $mt_t $mt_w
+        mt_tbl+=("$mt_x")
+    fi
 }
 
 # EOF

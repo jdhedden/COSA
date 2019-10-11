@@ -88,7 +88,7 @@ __WEB__
 }
 
 
-mt_db() {
+new_line() {
     # TODO
     return 0
 }
@@ -116,6 +116,10 @@ show_board() {
     declare -a brd
     cv_gen_board -h $rot "$fen" brd
 
+    # Gather moves
+    local -a moves
+    cw_moves_list DB $L moves
+
     # Ouput page
     cw_head "${GBL[DB_NAME]}"
 
@@ -125,6 +129,12 @@ show_board() {
     for ii in "${brd[@]}"; do
         echo "$ii"
     done
+
+    echo '<table>'
+    for ii in "${moves[@]}"; do
+        echo "<tr>$ii</tr>"
+    done
+    echo '</table>'
 
     cw_tail
 }
@@ -158,7 +168,7 @@ main() {
     fi
 
     if [[ -z $L ]]; then
-        mt_db
+        new_line
         return 0
     fi
 

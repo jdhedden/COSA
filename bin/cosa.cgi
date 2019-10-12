@@ -131,8 +131,8 @@ show_board() {
     done
 
     echo '<table>'
-    for ii in "${moves[@]}"; do
-        echo "<tr>$ii</tr>"
+    for (( ii=0; ii<15; ii++ )); do
+        echo "<tr>${moves[$ii]}${moves[$((ii+15))]}${moves[$((ii+30))]}</tr>"
     done
     echo '</table>'
 

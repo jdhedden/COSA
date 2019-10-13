@@ -137,8 +137,8 @@ show_board() {
     local -A nav
     cw_nav moves nav
     echo '<table width="320">'
-    echo "<tr><td>&nbsp;</td><td>${nav[prev]}&nbsp;${nav[rot]}&nbsp;${nav[next]}</td>"
-    echo "<td align="right">${nav[line]}&nbsp|&nbsp;${nav[db]}<td></tr>"
+    echo "<tr><td>&nbsp;</td><td>${nav[prev]}&nbsp;&nbsp;${nav[rot]}&nbsp;&nbsp;${nav[next]}</td>"
+    echo "<td align="right">${nav[line]}&nbsp${nav[sep]}&nbsp;${nav[db]}<td></tr>"
     echo '</table>'
     echo '</tr>'
 

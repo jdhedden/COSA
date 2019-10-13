@@ -110,6 +110,12 @@ cw_nav() {
     else
         nv_nav[line]='<font color="FFFFFF">Lines</font>'
     fi
+
+    if [[ ${#nv_dbs[@]} -gt 1 && ${#nv_lns[@]} -gt 1 ]]; then
+        nav[sep]='|'
+    else
+        nav[sep]='&nbsp;'
+    fi
 }
 
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# http://code2care.org/pages/chessboard-with-pieces-using-pure-html-and-css/
-
 # ANSI escape sequences
 declare -A X=(
     [0]=$(make_es 0)
@@ -152,131 +150,6 @@ cv_gen_board() {
 }
 
 
-cv_moves_table() {
-    # TODO
-
-    local mt_t mt_w mt_b
-    local mt_fmt='<tr><td>%s.</td><td>%s</td><td>%s</td></tr>\n'
-
-    echo '<table>'
-
-    for item in "$@"; do
-        if [[ -z $mt_t ]]; then
-            if [[ $item =~ \.\.\.$ ]]; then
-                mt_w='&#2026;'
-            fi
-            mt_t=${item//./}
-        elif [[ -z $mt_w ]]; then
-            mt_w=$item
-        else
-            printf "$mt_fmt" $mt_t $mt_w $mt_b
-        fi
-    done
-
-    echo '</table>'
-}
-
-
-# test_web.sh
-cv_gen_page() {
-    # USAGE: cv_gen_page [-r] "$fen"|board ???
-    # TODO
-
-    local gp_rot
-    if [[ $1 == -r ]]; then
-        gp_rot=$1
-        shift
-    fi
-
-    local gp_f
-    if [[ $1 =~ / ]]; then
-        local -a gp_ff=($1)
-        $gp_f=${gp_ff[0]}
-    else
-        eval "local -n gp_bb=$1"
-        $gp_f=${gp_bb[board]}
-    fi
-
-    eval "local -n gp_mvs=$2"  # ???
-
-    cat <<'__HEAD__'
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Chess</title>
-<style type="text/css">
-.chessboard {
-    width: 320px;
-    height: 320px;
-    margin: 20px;
-    border: 3px solid #888;
-}
-.black {
-    float: left;
-    width: 40px;
-    height: 40px;
-    background-color: #DDD;
-    font-size:30px;
-    text-align:center;
-    display: table-cell;
-    vertical-align:middle;
-}
-.white {
-    float: left;
-    width: 40px;
-    height: 40px;
-    background-color: #FFF;
-    font-size:30px;
-    text-align:center;
-    display: table-cell;
-    vertical-align:middle;
-}
-</style>
-</head>
-<body>
-__HEAD__
-
-    # Print board
-    local gp_brd gp_txt
-    cv_gen_board -h $gp_rot "$$gp_f" brd
-    for gp_txt in "${gp_brd[@]}"; do
-        echo "$gp_txt"
-    done
-
-    # Print moves
-    #cv_moves_table
-
-    # Close
-    echo '</body></html>'
-}
-
-
-# test.sh
-cv_boards_and_move() {
-    eval "local -n bm_brd1=$1"
-    eval "local -n bm_brd2=$2"
-    local -a bm_mvs=("${@:3}")
-
-    local ii
-    for ii in 0 1 2 3 4 5 6 7 8; do
-        printf "# %s  %-12s  %s\n" "${bm_brd1[$ii]}" "${bm_mvs[$ii]}" "${bm_brd2[$ii]}"
-    done
-}
-
-
-# test.sh
-cv_board_and_text() {
-    eval "local -n bt_brd=$1"
-    local -a bt_txt=("${@:2}")
-
-    local ii
-    for ii in 0 1 2 3 4 5 6 7 8; do
-        printf "# %s   %s\n" "${bt_brd[$ii]}" "${bt_txt[$ii]}"
-    done
-}
-
-
-# cosa.sh
 cv_moves_and_board() {
     #local mb_db=$1
     #local mb_l=$2
@@ -375,7 +248,7 @@ cv_moves_and_board() {
         echo -en "Alternate lines:\n  $3."
         if [[ $4 == b ]]; then echo -n '..'; fi
         local mb_mv
-        for mb_mv in $(sorted "${!mb_a[@]}"); do
+        for mb_mv in "${!mb_a[@]}"; do
             if node_exists $1 ${mb_a[$mb_mv]}.m; then
                 echo -n " ${X[a]}$mb_mv${X[0]}"
             else

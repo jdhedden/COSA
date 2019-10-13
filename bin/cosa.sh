@@ -58,7 +58,7 @@ DEBUG [true|false]  Turn on/set debug mode
 DEFEN               Purge FENs from database
 CLEAN [-e]          Delete logs or engine result files
 
-^D                  Exit (saves database)
+^D|exit|quit        Exit (saves database)
 ABORT               Exit without saving database
 
 __HELP__
@@ -143,9 +143,9 @@ main() {
                 cm_last DB $line turn side
                 ;;
             !)      # Go to starting move
-                if node_get -q DB $line.s tmp; then
-                    part +1 . $tmp turn
-                    part +$ . $tmp side
+                if node_get -q DB $line.s turn; then
+                    part +$ . $turn side
+                    part +1 . $turn turn
                 else
                     turn=1; side=w
                 fi
@@ -316,7 +316,7 @@ main() {
                     fi
                 fi
                 if ! ${GBL[READONLY]}; then
-                    cd_save DB ${GBL[DB_FILE]}
+                    cd_save DB "${GBL[DB_FILE]}"
                     save_db=false
                     GBL[MSG]="Database '$(basename -s .dat ${GBL[DB_FILE]})' saved to disk"
                 fi
@@ -381,6 +381,9 @@ main() {
                 ;;
             \?)  :  # Help - falls through and is displayed below
                 ;;
+            quit|exit)
+                break
+                ;;
             *)      # Use alternate move to jump to another line
                 if ! cm_parse_move move ${args[0]}; then
                     GBL[ERR]="Unrecognized command"
@@ -420,7 +423,7 @@ main() {
 
     # Done - save changes to DB
     if $save_db && ! ${GBL[READONLY]}; then
-        cd_save DB ${GBL[DB_FILE]}
+        cd_save DB "${GBL[DB_FILE]}"
     fi
     return 0
 }

@@ -43,6 +43,7 @@ a {
   color: blue;
   text-decoration: none;
 }
+#alt { color: green; }
 </style>
 </head>
 <body>
@@ -54,13 +55,36 @@ cw_tail() {
 }
 
 cw_cell() {
-    # USAGE: cw_cell_link -n D L T S R 'content' ['pad' ['style']]
-    #                        1 2 3 4 5  6          7      8
-    if [[ $1 == -n ]]; then
+    # USAGE: cw_cell_link -n -p -s 'style' -a 'attr' D L T S R 'content'
+    #                                                1 2 3 4 5  6
+    local cl_cell=true
+    local cl_pad=''
+    local cl_style=''
+    local cl_css=''
+    while [[ $1 =~ ^- ]]; do
+        case $1 in
+            -n)
+                cl_cell=false
+                ;;
+            -p)
+                cl_pad='&nbsp;'
+                ;;
+            -s)
+                cl_style=" $2"
+                shift
+                ;;
+            -a)
+                cl_css=" id=\"$2\""
+                shift
+                ;;
+        esac
         shift
-        echo "<a href=\"/cosa.cgi?D=$1&L=$2&T=$3&S=$4&R=$5\">$6</a>"
+    done
+        
+    if $cl_cell; then
+        echo "<td$cl_style>$cl_pad<a${cl_css} href=\"/cosa.cgi?D=$1&L=$2&T=$3&S=$4&R=$5\">$6</a></td>"
     else
-        echo "<td $8>$7<a href=\"/cosa.cgi?D=$1&L=$2&T=$3&S=$4&R=$5\">$6</a>$7</td>"
+        echo "<a${cl_css} href=\"/cosa.cgi?D=$1&L=$2&T=$3&S=$4&R=$5\">$6</a>"
     fi
 }
 
@@ -127,9 +151,9 @@ cw_alts() {
     if cd_get_alts DB $L $T $S am_aa; then
         for am_mv in "${!am_aa[@]}"; do
             if node_exists DB ${am_aa[$am_mv]}.m; then
-                am_a+=("$(cw_cell $D ${am_aa[$am_mv]} $T $S "$R" "$am_mv" '&nbsp;' "bgcolor=\"#DDD\"")")
+                am_a+=("$(cw_cell -p -s 'bgcolor="#DDD"' $D ${am_aa[$am_mv]} $T $S "$R" "$am_mv")")
             else
-                am_a+=("$(cw_cell $D ${am_aa[$am_mv]} $T $S "$R" "$am_mv" '&nbsp;')")
+                am_a+=("$(cw_cell -p $D ${am_aa[$am_mv]} $T $S "$R" "$am_mv")")
             fi
         done
     fi
@@ -143,11 +167,21 @@ cw_moves() {
 
     # Format moves
     local fm_t=1 fm_idx=0
-    local fm_w=$(cw_cell $D $L %s w "$R" %s "&nbsp;") fm_ww
-    local fm_b=$(cw_cell $D $L %s b "$R" %s "&nbsp;") fm_bb
+    local fm_w=$(cw_cell -p $D $L %s w "$R" %s) fm_ww
+    local fm_b=$(cw_cell -p $D $L %s b "$R" %s) fm_bb
+    local fm_wa=$(cw_cell -p -a alt $D $L %s w "$R" %s)
+    local fm_ba=$(cw_cell -p -a alt $D $L %s b "$R" %s)
     while [[ $fm_idx -lt ${#fm_mvs[@]} ]]; do
-        printf -v fm_ww "$fm_w" $fm_t "${fm_mvs[$fm_idx]}"
-        printf -v fm_bb "$fm_b" $fm_t "${fm_mvs[$((fm_idx+1))]}"
+        if node_is_node DB $L.$fm_t.w.a; then
+            printf -v fm_ww "$fm_wa" $fm_t "${fm_mvs[$fm_idx]}"
+        else
+            printf -v fm_ww "$fm_w" $fm_t "${fm_mvs[$fm_idx]}"
+        fi
+        if node_is_node DB $L.$fm_t.b.a; then
+            printf -v fm_bb "$fm_ba" $fm_t "${fm_mvs[$((fm_idx+1))]}"
+        else
+            printf -v fm_bb "$fm_b" $fm_t "${fm_mvs[$((fm_idx+1))]}"
+        fi
         if [[ $fm_t -eq $T ]]; then   # Highlight current move
             if [[ $S == w ]]; then
                 fm_ww="<td bgcolor=\"#DDD\">&nbsp;${fm_mvs[$fm_idx]}</td>"

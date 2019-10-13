@@ -6,7 +6,7 @@ provides a front-end to the Stockfish chess engine for analyzing board
 positions.
 
 A web UI is provided which uses the **httpd** feature of
-['busybox'](https://busybox.net).
+[busybox](https://busybox.net).
 
 #### Changelog
 

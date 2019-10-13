@@ -1,12 +1,16 @@
-# COSA - Chess Opening Study Aid
-#### ... COSA ... it's a thing ...
+### Chess Opening Study Aid
+#### *COSA ... It's a thing*
 The **Chess Opening Study Aid** is a command line tool written in Bash for
 building personal databases of chess openings and games.  Additionally, it
 provides a front-end to the **Stockfish** chess engine for analyzing board
 positions.
 
+*cd* into the repository directory, and then run *bin/cosa.sh*.  Type *?*
+for the help menu.
+
 A web UI is provided which uses the *httpd* feature of
-[busybox](https://busybox.net).
+[busybox](https://busybox.net).  After installing *busybox*, *cd* into the
+repository directory, and then run *bin/cosa-ui*.
 
 #### Changelog
 

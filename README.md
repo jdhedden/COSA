@@ -5,8 +5,22 @@ building personal databases of chess openings and games.  Additionally, it
 provides a front-end to the Stockfish chess engine for analyzing board
 positions.
 
+A web UI is provided which uses the **httpd** feature of
+['busybox'](https://busybox.net).
 
 #### Changelog
+
+* Version 0.5.0 - 2019-10-13
+    * Web interface
+
+* Version 0.4.1 - 2019-10-09
+    * Fixes to DB saves and engine move processing
+
+* Version 0.4.0 - 2019-10-08
+    * Handle full algebraic notation (from search engines)
+
+* Version 0.3.0 - 2019-10-08
+    * Fix en passant captures
 
 * Version 0.2.0 - 2019-10-03
     * Command to cleanup logs and/or engine result file

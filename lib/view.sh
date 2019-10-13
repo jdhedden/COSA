@@ -248,7 +248,7 @@ cv_moves_and_board() {
         echo -en "Alternate lines:\n  $3."
         if [[ $4 == b ]]; then echo -n '..'; fi
         local mb_mv
-        for mb_mv in $(sorted "${!mb_a[@]}"); do
+        for mb_mv in "${!mb_a[@]}"; do
             if node_exists $1 ${mb_a[$mb_mv]}.m; then
                 echo -n " ${X[a]}$mb_mv${X[0]}"
             else

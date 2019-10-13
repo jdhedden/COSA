@@ -90,14 +90,19 @@ __WEB__
 
 new_line() {
     # TODO
+    cw_head
+    echo 'Empty database'
+    cw_tail
     return 0
 }
 
 
 show_board() {
-    # Name of line
-    local cmt
-    node_get -q DB $L.c cmt
+    # Output page
+    cw_head "${GBL[DB_NAME]}"
+    local cmt='&nbsp;'
+    if node_exists DB $L.m; then cmt='!'; fi   # Main line of study
+    echo "<h3>$cmt&nbsp;$(node_get -q DB $L.c)</h3>"
 
     # Rotate board?
     local rot
@@ -110,32 +115,76 @@ show_board() {
        fi
     fi
 
-    # Generate board
+    # Board
     local fen
     node_get DB $L.$T.$S.f fen
     declare -a brd
     cv_gen_board -h $rot "$fen" brd
-
-    # Gather moves
-    local -a moves
-    cw_moves_list DB $L moves
-
-    # Ouput page
-    cw_head "${GBL[DB_NAME]}"
-
-    echo "$cmt<br>"
-
     local ii
     for ii in "${brd[@]}"; do
         echo "$ii"
     done
 
-    echo '<table>'
-    for (( ii=0; ii<15; ii++ )); do
-        echo "<tr>${moves[$ii]}${moves[$((ii+15))]}${moves[$((ii+30))]}</tr>"
-    done
-    echo '</table>'
+    # Move's comment
+    node_get DB $L.$T.$S.c cmt
 
+    # Gather moves
+    local -a moves
+    cd_gather_moves DB moves $L
+
+    # Nav bar
+    echo '<table><tr>'
+    local -A nav
+    cw_nav moves nav
+    echo '<table width="320">'
+    echo "<tr><td>&nbsp;</td><td>${nav[prev]}&nbsp;${nav[rot]}&nbsp;${nav[next]}</td>"
+    echo "<td align="right">${nav[line]}&nbsp|&nbsp;${nav[db]}<td></tr>"
+    echo '</table>'
+    echo '</tr>'
+
+    # Alts moves
+    echo '<tr><table><tr>'
+    local -a alts
+    cw_alts alts
+    if [[ ${#alts[@]} -gt 0 ]]; then
+        echo -n "<td>Alts:&nbsp;&nbsp;$T."
+        if [[ $S == b ]]; then
+            echo -n '..'
+        fi
+        echo '&nbsp;</td>'
+        for ii in "${alts[@]}"; do
+            echo "$ii"
+        done
+    elif [[ -n $cmt ]]; then
+        echo "<td><font color="008800">Cmt:</font> $cmt</td>"
+        cmt=
+    else
+        echo -n '<td><font color="FFFFFF">No alts</font></td>'
+    fi
+    echo '</tr></table></tr>'
+
+    # Move comment
+    if [[ -n $cmt ]]; then
+        echo "<tr><td><font color="00DD00">Cmt:</font> $cmt</td></tr>"
+    fi
+
+    # List of moves
+    echo '<tr><td><span style="font-size:25%">&nbsp;</span></td></tr><tr><table>'
+    local -a mvs_fmt
+    cw_moves moves mvs_fmt
+    if [[ ${#mvs_fmt[@]} -gt 30 ]]; then
+        rows=$(( ( ${#mvs_fmt[@]} + 2 ) / 3 ))
+    elif [[ ${#mvs_fmt[@]} -gt 10 ]]; then
+        rows=10
+    else
+        rows=${#mvs_fmt[@]}
+    fi
+    for (( ii=0; ii<rows; ii++ )); do
+        echo "<tr>${mvs_fmt[$ii]}${mvs_fmt[$((ii+rows))]}${mvs_fmt[$((ii+rows+rows))]}</tr>"
+    done
+    echo '</table></tr></table>'
+
+    # Close page
     cw_tail
 }
 

@@ -219,8 +219,11 @@ cd_choose_line() {
     PS3='
 Which line? '
     while [[ -z $cl_l ]]; do
-        select cl_x in $(sorted "${!cl_lns[@]}"); do
+        select cl_x in '<New Line>' $(sorted "${!cl_lns[@]}"); do
             if [[ -n $cl_x ]]; then
+                if [[ $cl_x == '<New Line>' ]]; then
+                    return 1
+                fi
                 cl_l=${cl_lns[$cl_x]}
                 part +1 '|' "$cl_l" cl_l
                 break

@@ -89,6 +89,9 @@ main() {
         side=${ary[2]:-w}
     else
         if ! cd_choose_line DB line turn side; then
+            if node_is_null DB '_'; then
+                echo 'Database is empty'
+            fi
             cd_new_line DB line
             turn=1; side=w
             save_db=true

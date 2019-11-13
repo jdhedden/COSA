@@ -1,10 +1,16 @@
 #!/bin/bash
 
-# USAGE:  cosa-ui [--start|--stop]
+# USAGE:  cosa-ui [--debug] [--start|--stop]
 
 if ! which busybox >/dev/null 2>&1; then
     echo 'BusyBox not found'
     exit 1
+fi
+
+verbose=false
+if [[ $1 =~ debug ]]; then
+    verbose=true
+    shift
 fi
 
 if [[ $1 =~ stop ]]; then
@@ -33,14 +39,18 @@ __CFG__
 killall busybox 2>/dev/null
 busybox httpd -c $CFG -p $PORT
 echo 'Backend started'
+if $verbose; then
+    echo "COSA=$COSA"
+    cat $CFG
+fi
 
 # Launch web page
 if which xdg-open >/dev/null 2>&1; then
-    xdg-open http://127.0.0.1:$PORT >/dev/null 2>&1
+    xdg-open http://127.0.0.1:$PORT/cosa.cgi >/dev/null 2>&1
 elif which cygstart >/dev/null 2>&1; then
-    cygstart http://localhost:$PORT
+    cygstart http://localhost:$PORT/cosa.cgi
 else
-    echo "Open http://127.0.0.1:$PORT in web browser"
+    echo "Open http://127.0.0.1:$PORT/cosa.cgi in web browser"
 fi
 exit 0
 

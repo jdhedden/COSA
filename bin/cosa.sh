@@ -244,7 +244,7 @@ main() {
                     args[0]='?'
                 fi
                 ;;
-            del)    # Delete lines and moves
+            del)    # Delete DB, lines and moves
                 if [[ ${args[1]} == '-d' ]]; then
                     tmp=
                     if cd_delete tmp; then

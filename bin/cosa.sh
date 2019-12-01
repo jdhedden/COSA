@@ -89,7 +89,9 @@ main() {
         side=${ary[2]:-w}
     else
         if ! cd_choose_line DB line turn side; then
-            echo 'Database is empty'
+            if node_is_null DB '_'; then
+                echo 'Database is empty'
+            fi
             cd_new_line DB line
             turn=1; side=w
             save_db=true
@@ -242,7 +244,7 @@ main() {
                     args[0]='?'
                 fi
                 ;;
-            del)    # Delete lines and moves
+            del)    # Delete DB, lines and moves
                 if [[ ${args[1]} == '-d' ]]; then
                     tmp=
                     if cd_delete tmp; then

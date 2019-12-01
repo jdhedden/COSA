@@ -49,6 +49,7 @@ declare -A ENG=(
     # changed using the 'params' command within COSA
     [depth]=25
     [/Threads]=$(grep -c ^processor /proc/cpuinfo)
+    # Use half of total memory
     [/Hash]=$(grep MemTotal /proc/meminfo | awk '{print int($2/2000)}')
     [/MultiPV]=5
     [/Contempt]=100

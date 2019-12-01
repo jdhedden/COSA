@@ -219,8 +219,11 @@ cd_choose_line() {
     PS3='
 Which line? '
     while [[ -z $cl_l ]]; do
-        select cl_x in $(sorted "${!cl_lns[@]}"); do
+        select cl_x in '<New Line>' $(sorted "${!cl_lns[@]}"); do
             if [[ -n $cl_x ]]; then
+                if [[ $cl_x == '<New Line>' ]]; then
+                    return 1
+                fi
                 cl_l=${cl_lns[$cl_x]}
                 part +1 '|' "$cl_l" cl_l
                 break
@@ -350,22 +353,35 @@ cd_branch_line() {
     local -a bl_mvs
     cd_gather_moves $1 bl_mvs $3 1 w $4 $5
 
-    # Add moves to new line (replacing last move with alt move)
-    if ! cd_gen_line $1 $2 "${bl_mvs[@]:0:${#bl_mvs[@]}-1}" "${@:6}"; then
+    # Add moves (sans last) to new line
+    if ! cd_gen_line $1 $2 "${bl_mvs[@]:0:${#bl_mvs[@]}-1}"; then
         cd_del_line $1 $bl_nl
         return 1
     fi
     node_del $1 $bl_nl.m   # This is a derived line
 
+    # Add first alt move
+    if ! cd_add_moves $1 $bl_nl ii jj "$6"; then
+        return 1
+    fi
+
     # Set description
+    node_get $1 $bl_nl.$ii.$jj.m jj
     node_get $1 $3.c ii
     part +1 ' ' "$ii" ii
     if [[ $5 == w ]]; then
-        ii+=" ($4. $6)"
+        ii+=" ($4. $jj)"
     else
-        ii+=" ($4... $6)"
+        ii+=" ($4... $jj)"
     fi
     node_set $1 $bl_nl.c "$ii"
+
+    # Add remaining moves
+    if [[ $# -gt 6 ]]; then
+        if ! cd_add_moves $1 $bl_nl ii jj "${@:7}"; then
+            return 1
+        fi
+    fi
 
     # Copy start point and rotation
     for ii in s r; do

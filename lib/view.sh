@@ -295,10 +295,12 @@ cv_enumerate_moves() {
             em_s=${BASH_REMATCH[3]}
         fi
     fi
-    if [[ $em_s == 'b' ]]; then
+    if [[ $em_s == 'w' ]]; then
+        em_out=''
+    else
         em_out=" $em_t..."
     fi
-    for em_m in "$em_moves[@]"; do
+    for em_m in "${em_moves[@]}"; do
         if [[ $em_s == 'w' ]]; then
             em_out+=" $em_t. $em_m"
             em_s='b'

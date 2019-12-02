@@ -75,12 +75,14 @@ Opening DB: ${GBL[DB_NAME]}<br>
 Which line?<ul>
 __WEB__
 
-    local ln
+    local ln ifs
+    ifs=$IFS
+    IFS=$'\n\r'
     for ln in $(sorted "${!lns[@]}"); do
-        part +1 '|' "${lns[$ln]}" L     # Line #
-        part +$ '|' "${lns[$ln]}" ln    # Line name (comment)
+        L=${lns[$ln]}
         echo "<li><a href=\"/cosa.cgi?D=$D&L=$L\">$ln</a>"
     done
+    IFS=$ifs
     echo '</ul>'
 
     cw_tail

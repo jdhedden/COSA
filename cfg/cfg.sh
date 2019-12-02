@@ -8,7 +8,7 @@ put your configuration customizations in cfg/my_cfh.sh.
 __NOTES__
 
 
-COSA_VERSION='0.5.0'
+COSA_VERSION='0.7.0'
 
 UTILS_MISC=true
 . $COSA/lib/utils_misc

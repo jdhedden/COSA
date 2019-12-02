@@ -46,7 +46,7 @@ extract             Extract cluster for current line to new DB
 
 save                Write database to disk
 
-list                List moves in line
+list [-n]           List moves in line (with move numbers
 fen                 Show the FEN for the current move
 
 param               Set engine parameters
@@ -88,8 +88,8 @@ main() {
         turn=${ary[1]:-1}
         side=${ary[2]:-w}
     else
-        if ! cd_choose_line DB line turn side; then
-            if node_is_null DB '_'; then
+        if ! cd_choose_line -n DB line turn side tmp; then
+            if [[ $tmp -eq 0 ]]; then
                 echo 'Database is empty'
             fi
             cd_new_line DB line
@@ -158,14 +158,16 @@ main() {
                 ;;
             line)   # Select a line of study
                 hist+=($line.$turn.$side)
-                cd_choose_line DB line turn side
+                cd_choose_line DB line turn side tmp
+                if [[ $tmp -eq 1 ]]; then
+                    GBL[MSG]='No other lines in database'
+                fi
                 tmp=$(( ${#hist[@]} - 1 ))
                 ary=(${hist[$tmp]//./ })
                 if [[ $line == ${ary[0]} ]]; then
                     turn=${ary[1]}
                     side=${ary[2]}
                     unset hist[$tmp]
-                    GBL[MSG]='No other lines in database'
                 else
                     rotate=false
                 fi
@@ -256,7 +258,7 @@ main() {
                         cd_del_line DB $line
                         cd_orphan DB
                         save_db=true
-                        if ! cd_choose_line DB line turn side; then
+                        if ! cd_choose_line DB line turn side tmp; then
                             echo 'Database is empty'
                             cd_new_line DB line
                             turn=1; side=w
@@ -325,7 +327,12 @@ main() {
                 ;;
             list)   # List move in line
                 cd_gather_moves DB ary $line
-                GBL[MSG]="${ary[*]}"
+                if [[ ${args[1]} == '-n' ]]; then
+                    cv_enumerate_moves ary tmp 1
+                    GBL[MSG]=${tmp:1}
+                else
+                    GBL[MSG]="${ary[*]}"
+                fi
                 ;;
             fen)
                 node_get DB $line.$turn.$side.f tmp

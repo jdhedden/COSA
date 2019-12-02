@@ -190,24 +190,37 @@ cd_list_lines() {
         if [[ -v "ll_db[$ll_l.m]" ]]; then
             part +$ . $ll_l ll_l
             node_get $1 $ll_l.c ll_c
-            ll_lns[${ll_c// /_}]="$ll_l|$ll_c"
+            ll_lns[$ll_c]=$ll_l
         fi
     done
     return 0
 }
 
 cd_choose_line() {
-    # USAGE: cd_choose_line DB line turn side
+    # USAGE: cd_choose_line [-n] DB line turn side count
+
+    # Present '<New_Line>' choice (detected using [[ $count -eq -1 ]])
+    local new=false
+    if [[ $1 == '-n' ]]; then
+        new=true
+        shift
+    fi
+
     eval "local -n cl_db=$1"
     eval "local -n cl_l=$2"
     eval "local -n cl_t=$3"
     eval "local -n cl_s=$4"
+    eval "local -n cl_n=$5"
 
     local -A cl_lns
     cd_list_lines $1 cl_lns
+    cl_n=${#cl_lns[@]}
 
     if [[ ${#cl_lns[@]} -eq 0 ]]; then
-        return 1            # Create a new line
+        if $new; then
+            cl_n=-1
+        fi
+        return 1
     elif [[ ${#cl_lns[@]} -eq 1 ]]; then
         cl_l=${cl_lns[${!cl_lns[@]}]}   # Only one line
         part +1 '|' "$cl_l" cl_l
@@ -215,20 +228,28 @@ cd_choose_line() {
         cl_l=
     fi
 
+    if $new; then
+        cl_lns['<New Line>']=-1
+    fi
+
     echo
+    local cl_ifs
     PS3='
 Which line? '
     while [[ -z $cl_l ]]; do
-        select cl_x in '<New Line>' $(sorted "${!cl_lns[@]}"); do
+        cl_ifs=$IFS
+        IFS=$'\n\r'
+        select cl_x in $(sorted "${!cl_lns[@]}"); do
             if [[ -n $cl_x ]]; then
                 if [[ $cl_x == '<New Line>' ]]; then
+                    cl_n=-1
                     return 1
                 fi
                 cl_l=${cl_lns[$cl_x]}
-                part +1 '|' "$cl_l" cl_l
                 break
             fi
         done
+        IFS=$cl_ifs
     done
 
     if node_get -q $1 $cl_l.s cl_x; then
@@ -516,6 +537,9 @@ cd_del_move() {
 
     # Delete move
     node_del -q $1 $2.$3.$4
+    if node_exists $1 $2.$3 && node_is_null $1 $2.$3; then
+        node_del -q $1 $2.$3
+    fi
 }
 
 cd_truncate_line() {

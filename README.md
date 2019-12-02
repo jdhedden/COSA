@@ -14,6 +14,11 @@ repository directory, and then run *bin/cosa-ui*.
 
 #### Changelog
 
+* Version 0.7.0 - 2019-12-02
+    * Fix line truncation
+    * Fix line selection
+    * Fix version
+
 * Version 0.6.0 - 2019-12-01
     * Capability to add a new line on start
     * Added web interface debugging mode

@@ -278,4 +278,37 @@ cv_window() {
     fi
 }
 
+cv_enumerate_moves() {
+    # USAGE: cv_enumerate_moves moves output [$turn [$side]]
+
+    eval "local -n em_moves=$1"
+    eval "local -n em_out=$2"
+    #local em_start=$3 [e.g., 5 or 5w or 5b]
+    #local em_side=$4  [e.g., w or b]
+    local em_t=1 em_s=w em_m
+
+    if [[ $3 =~ ^([0-9]+)(\.?([bw]))? ]]; then
+        em_t=${BASH_REMATCH[1]}
+        if [[ -z ${BASH_REMATCH[3]} ]]; then
+            em_s=${4:-w}
+        else
+            em_s=${BASH_REMATCH[3]}
+        fi
+    fi
+    if [[ $em_s == 'w' ]]; then
+        em_out=''
+    else
+        em_out=" $em_t..."
+    fi
+    for em_m in "${em_moves[@]}"; do
+        if [[ $em_s == 'w' ]]; then
+            em_out+=" $em_t. $em_m"
+            em_s='b'
+        else
+            em_out+=" $em_m"
+            (( em_t++ ))
+            em_s='w'
+        fi
+    done
+}
 # EOF

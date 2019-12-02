@@ -516,6 +516,9 @@ cd_del_move() {
 
     # Delete move
     node_del -q $1 $2.$3.$4
+    if node_exists $1 $2.$3 && node_is_null $1 $2.$3; then
+        node_del -q $1 $2.$3
+    fi
 }
 
 cd_truncate_line() {

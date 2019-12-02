@@ -46,7 +46,7 @@ extract             Extract cluster for current line to new DB
 
 save                Write database to disk
 
-list                List moves in line
+list [-n]           List moves in line (with move numbers
 fen                 Show the FEN for the current move
 
 param               Set engine parameters
@@ -325,7 +325,12 @@ main() {
                 ;;
             list)   # List move in line
                 cd_gather_moves DB ary $line
-                GBL[MSG]="${ary[*]}"
+                if [[ ${args[1]} == '-n' ]]; then
+                    cv_enumerate_moves ary tmp 1
+                    GBL[MSG]=$tmp
+                else
+                    GBL[MSG]="${ary[*]}"
+                fi
                 ;;
             fen)
                 node_get DB $line.$turn.$side.f tmp

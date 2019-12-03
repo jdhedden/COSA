@@ -228,6 +228,7 @@ main() {
                     # Set starting point
                     if [[ -z ${args[2]} ]]; then
                         node_set DB $line.s "$turn.$side"
+                        GBL[MSG]="Starting point set to $turn.$side"
                     elif [[ ${args[2]} =~ ^([0-9]+)(\.?([bw]))? ]]; then
                         turn=${BASH_REMATCH[1]}
                         if [[ -z ${BASH_REMATCH[3]} ]]; then
@@ -240,14 +241,14 @@ main() {
                             save_db=true
                             GBL[MSG]="Starting point set to $turn.$side"
                         else
-                            GBL[ERR]="No such move"
+                            GBL[ERR]="No such move: ${args[2]}"
                         fi
                     else
-                        GBL[ERR]="No such move"
+                        GBL[ERR]="No such move: ${args[2]}"
                     fi
                 else
-                    GBL[ERR]="Unrecognized command"
-                    args[0]='?'
+                    GBL[ERR]="Unrecognized command: ${args[1]}"
+                    args[0]='help'
                 fi
                 ;;
             del)    # Delete DB, lines and moves
@@ -395,14 +396,15 @@ main() {
                 save_db=false
                 return 1
                 ;;
-            \?)  :  # Help - falls through and is displayed below
+            help|\?)  # Help - falls through and is displayed below
+                args[0]='help'
                 ;;
             quit|exit)
                 break
                 ;;
             *)      # Use alternate move to jump to another line
                 if ! cm_parse_move move ${args[0]}; then
-                    GBL[ERR]="Unrecognized command"
+                    GBL[ERR]="Unrecognized command: ${args[0]}"
                 elif node_get -q DB $line.$turn.$side.a.${move[move]} tmp; then
                     hist+=($line.$turn.$side)
                     line=$tmp
@@ -412,7 +414,7 @@ main() {
                 elif [[ $(node_get DB $line.$turn.$side.m) == ${move[move]} ]]; then
                     GBL[MSG]="Already on line with move '$move'"
                 else
-                    GBL[ERR]='No corresponding alternate line'
+                    GBL[ERR]="No corresponding alternate line for '$move'"
                 fi
                 ;;
         esac
@@ -429,7 +431,7 @@ main() {
             echo -e "\n${GBL[MSG]}"
             GBL[MSG]=
         fi
-        if [[ ${args[0]} == '?' ]]; then
+        if [[ ${args[0]} == 'help' ]]; then
             echo
             commands   # Help
         fi

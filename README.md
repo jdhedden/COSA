@@ -5,12 +5,23 @@ building personal databases of chess openings and games.  Additionally, it
 provides a front-end to the **Stockfish** chess engine for analyzing board
 positions.
 
-*cd* into the repository directory, and then run *bin/cosa.sh*.  Type *?*
-for the help menu.
+#### Quick Start
+1.  *cd* into the repository directory.
+2.  Run *bin/cosa.sh*.  This will open the default *Openings* database, and
+display the single sample opening.
+3.  Type *help* for the list of commands.
 
 A web UI is provided which uses the *httpd* feature of
 [busybox](https://busybox.net).  After installing *busybox*, *cd* into the
 repository directory, and then run *bin/cosa-ui*.
+
+#### Development Status
+This software is at a *beta* maturity level.  It is functional, robust, and
+there are currently no known bugs.  (Though, my development motto is "There's
+always one more bug.") All of the intended features are fully implemented, and
+I use it for my own personal chess study.
+
+What is missing is mostly documentation and *how to*s/tutorials.
 
 #### Changelog
 
@@ -57,6 +68,8 @@ repository directory, and then run *bin/cosa-ui*.
 
 #### Keywords (for ye olde search engines)
 
-Chess / Stockfish / Bash / Shell / Terminal / Command line
+Chess / Stockfish
+Bash / Shell / Terminal / Command line
+Tree data structure
 
 ###### EOF

@@ -495,11 +495,6 @@ cd_gen_line() {
     #local gl_db=$1
     eval "local -n gl_l=$2"
 
-    local gl_ii
-    for gl_ii in "$@"; do
-        e_debug "'$gl_ii'"
-    done
-
     cd_mt_line $1 $2
     cd_set_moves $1 $gl_l 1 w '' "${@:3}"
 }

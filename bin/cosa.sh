@@ -188,7 +188,7 @@ main() {
                 if [[ -z ${args[1]} ]]; then
                     if $rotate; then rotate=false; else rotate=true; fi
                 else
-                    if node_del DB $line.r; then
+                    if node_del -q DB $line.r; then
                         GBL[MSG]='Line set to default rotation'
                     else
                         node_set DB $line.r '-r'

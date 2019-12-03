@@ -14,6 +14,9 @@ repository directory, and then run *bin/cosa-ui*.
 
 #### Changelog
 
+* Version 0.7.2 - 2019-12-03
+    * Changed command for starting a new line of study
+
 * Version 0.7.1 - 2019-12-02
     * Fix line truncation
     * Fix line selection

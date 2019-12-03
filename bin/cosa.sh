@@ -7,7 +7,7 @@ export COSA=$(realpath $(dirname $0)/..)
 . $COSA/cfg/cfg.sh
 
 
-UTIL[USAGE]="${UTIL[SELF]} [--help|--version] [--debug] [db_file]"
+UTIL[USAGE]="${UTIL[SELF]} [--help|--version] [--debug] [database]"
 
 
 commands() {
@@ -20,7 +20,8 @@ $                   Jump to last move
 _move_              Go to line for alt. move
 !                   Go to starting position
 
-line                Select a line of study
+line                Select a line of study, or create
+                     a new one
 --                  Return to previous line (stacked)
 !!|main             Go to main line
 
@@ -37,28 +38,30 @@ del -l              Delete current line of study
 del -d              Delete databases
 
 alt _move_ ...      Create new line with alt. move(s)
+                     from current position
 
-new [_move_ ...]    Create new line of study
 set main            Set to a main line of study
 set start [# [b]]   Set starting move for line
 
-extract             Extract cluster for current line to new DB
+extract             Extract cluster for current line
+                     to new database
 
 save                Write database to disk
 
-list [-n]           List moves in line (with move numbers
+list [-n]           List moves in line
+                     -n = with move numbers
 fen                 Show the FEN for the current move
 
-param               Set engine parameters
 eng                 Run analysis engine
+param               Set engine parameters
 
-win                 Open currently line in a new window
+win                 Open currently line in new window
 
 DEBUG [true|false]  Turn on/set debug mode
 DEFEN               Purge FENs from database
 CLEAN [-e]          Delete logs or engine result files
 
-^D|exit|quit        Exit (saves database)
+^D|exit|quit        Save database if needed, and exit
 ABORT               Exit without saving database
 
 __HELP__
@@ -87,15 +90,14 @@ main() {
         line=${ary[0]}
         turn=${ary[1]:-1}
         side=${ary[2]:-w}
-    else
-        if ! cd_choose_line -n DB line turn side tmp; then
-            if [[ $tmp -eq 0 ]]; then
-                echo 'Database is empty'
-            fi
-            cd_new_line DB line
-            turn=1; side=w
-            save_db=true
+
+    elif ! cd_choose_line -n DB line turn side tmp; then
+        if [[ $tmp -eq 0 ]]; then
+            echo 'Database is empty'
         fi
+        cd_new_line DB line
+        turn=1; side=w
+        save_db=true
     fi
     if cd_fenify DB $line; then
         save_db=true
@@ -156,20 +158,30 @@ main() {
                 hist+=($line.$turn.$side)
                 cd_main DB line turn side
                 ;;
-            line)   # Select a line of study
+            line)   # Select a line of study, or create a new line
                 hist+=($line.$turn.$side)
-                cd_choose_line DB line turn side tmp
-                if [[ $tmp -eq 1 ]]; then
-                    GBL[MSG]='No other lines in database'
-                fi
-                tmp=$(( ${#hist[@]} - 1 ))
-                ary=(${hist[$tmp]//./ })
-                if [[ $line == ${ary[0]} ]]; then
-                    turn=${ary[1]}
-                    side=${ary[2]}
-                    unset hist[$tmp]
+                if cd_choose_line -n DB line turn side tmp; then
+                    if [[ $tmp -eq 1 ]]; then
+                        GBL[MSG]='No other lines in database'
+                    fi
+                    tmp=$(( ${#hist[@]} - 1 ))
+                    ary=(${hist[$tmp]//./ })
+                    if [[ $line == ${ary[0]} ]]; then
+                        turn=${ary[1]}  # Same line
+                        side=${ary[2]}
+                        unset hist[$tmp]
+                    else
+                        rotate=false
+                        if cd_fenify DB $line; then
+                            save_db=true
+                        fi
+                    fi
                 else
+                    # Create new line of study
                     rotate=false
+                    cd_new_line DB line
+                    turn=1; side=w
+                    save_db=true
                 fi
                 ;;
             rot)    # Toggle rotate board; -l = toggle rotate for line
@@ -205,14 +217,6 @@ main() {
                         unset hist[$tmp]
                     fi
                 fi
-                ;;
-            new)    # Create new line of study
-                hist+=($line.$turn.$side)
-                cd_new_line DB line "${args[@]:1}"
-                if cd_fenify DB $line; then
-                    save_db=true
-                fi
-                turn=1; side=w
                 ;;
             set)
                 if [[ ${args[1]} == main ]]; then
@@ -258,12 +262,14 @@ main() {
                         cd_del_line DB $line
                         cd_orphan DB
                         save_db=true
-                        if ! cd_choose_line DB line turn side tmp; then
+                        rotate=false
+                        if cd_choose_line DB line turn side tmp; then
+                            cd_fenify DB $line
+                        else
                             echo 'Database is empty'
                             cd_new_line DB line
                             turn=1; side=w
                         fi
-                        rotate=false
                     fi
                 else   # Delete from current move onward
                     ask_confirm "Are you sure you want to delete move(s)\nfrom here to the end?"
@@ -307,7 +313,9 @@ main() {
                     unset DB2
                     GBL[MSG]="New DB saved to $tmp"
                     cv_window $tmp $line.$turn.$side
+                    rotate=false
                     cd_choose_line DB line turn side
+                    cd_fenify DB $line
                 fi
                 ;;
             save)   # Write out DB

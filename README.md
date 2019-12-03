@@ -68,8 +68,8 @@ What is missing is mostly documentation and *how to*s/tutorials.
 
 #### Keywords (for ye olde search engines)
 
-Chess / Stockfish
-Bash / Shell / Terminal / Command line
-Tree data structure
+* Chess / Stockfish
+* Bash / Shell / Terminal / Command line
+* Tree data structure (implemented in lib/utils_tree)
 
 ###### EOF

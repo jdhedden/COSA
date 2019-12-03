@@ -199,7 +199,7 @@ cd_list_lines() {
 cd_choose_line() {
     # USAGE: cd_choose_line [-n] DB line turn side count
 
-    # Present '<New_Line>' choice (detected using [[ $count -eq -1 ]])
+    # Present '<New Line>' choice (detected using [[ $count -eq -1 ]])
     local new=false
     if [[ $1 == '-n' ]]; then
         new=true
@@ -243,6 +243,7 @@ Which line? '
             if [[ -n $cl_x ]]; then
                 if [[ $cl_x == '<New Line>' ]]; then
                     cl_n=-1
+                    IFS=$cl_ifs
                     return 1
                 fi
                 cl_l=${cl_lns[$cl_x]}
@@ -494,6 +495,11 @@ cd_gen_line() {
     #local gl_db=$1
     eval "local -n gl_l=$2"
 
+    local gl_ii
+    for gl_ii in "$@"; do
+        e_debug "'$gl_ii'"
+    done
+
     cd_mt_line $1 $2
     cd_set_moves $1 $gl_l 1 w '' "${@:3}"
 }
@@ -505,8 +511,7 @@ cd_new_line() {
         echo -e "\nCreating new line of study"
         local nl_mvs
         while [[ -z $nl_mvs ]]; do
-            read -p "Enter initial move(s): "
-            nl_mvs=$REPLY
+            read -p "Enter initial move(s): " nl_mvs
         done
         cd_gen_line $1 $2 $nl_mvs
     else

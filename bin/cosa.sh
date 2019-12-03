@@ -294,8 +294,7 @@ main() {
                     save_db=true
                     tmp=
                     while [[ -z $tmp ]]; do
-                        read -p 'Name for extracted DB: '
-                        tmp=$REPLY
+                        read -p 'Name for extracted DB: ' tmp
                         if [[ -n $tmp ]]; then
                             tmp=$COSA/dat/$tmp.dat
                             if [[ -f $tmp ]]; then

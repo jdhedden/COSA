@@ -31,6 +31,7 @@ rot -l              Change board rotation for line
 cmt "..."           Add comment to current move
 cmt -d              Delete comment for current move
 cmt -l "..."        Change description for line
+anno [-d]           Add/remove move annotation
 
 add _move_ ...      Add move(s) to end of line
 del                 Delete from current move to end
@@ -74,7 +75,7 @@ main() {
     local line turn=1 side=w
     local cur_line cur_turn cur_side
     local rotate=false
-    local fen tmp
+    local fen tmp tmp2
 
     echo -e "\n${GBL[WELCOME]}"
 
@@ -295,6 +296,27 @@ main() {
                         ;;
                 esac
                 save_db=true
+                ;;
+            anno)   # Move annotations
+                node_get DB $line.$turn.$side.m tmp
+                tmp2=$tmp
+
+                # Strip old annotation
+                if [[ $tmp =~ ^([^!?]+)[!?]+$ ]]; then
+                    tmp=${BASH_REMATCH[1]}
+                fi
+
+                # Update move
+                if [[ -z ${args[1]} || ${args[1]} == '-d' ]]; then
+                    node_set DB $line.$turn.$side.m "$tmp"
+                    GBL[MSG]="Move annotation removed: $tmp2 => $tmp"
+                elif [[ ${args[1]} =~ ^[!?]+$ ]]; then
+                    tmp+=${args[1]}
+                    node_set DB $line.$turn.$side.m "$tmp"
+                    GBL[MSG]="Move annotation added: $tmp2 => $tmp"
+                else
+                    GBL[ERR]="Invalid move annotation: ${args[1]}"
+                fi
                 ;;
             extract)  # Extract cluster of lines to new DB
                 if cd_extract DB DB2 $line; then

@@ -156,33 +156,36 @@ cm_parse_move() {
     #   [promote]   Pawn promotion piece
     #   [castle]    O-O or O-O-O
     #   [err]       Error message
+    #   [anno]      Annotation marks (!, ?, etc.)
     # )
 
     eval "local -n pm_mv=$1"
     pm_mv=([move]=$2)
 
     # Support case-insensitive moves
-    if [[ ${pm_mv[move]} =~ ^([kqnr])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)$ ]]; then
+    if [[ ${pm_mv[move]} =~ ^([kqnr])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)([?!]+)$ ]]; then
         cm_parse_move $1 ${2^}
         return $?
     fi
 
     # Piece move
-    if [[ ${pm_mv[move]} =~ ^([KQBNR])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)$ ]]; then
+    if [[ ${pm_mv[move]} =~ ^([KQBNR])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)([?!]+)$ ]]; then
         pm_mv[piece]=${BASH_REMATCH[1]}
         pm_mv[dis]=${BASH_REMATCH[2]}
         pm_mv[xture]=${BASH_REMATCH[3]}
         pm_mv[dest]=${BASH_REMATCH[4]}
         pm_mv[check]=${BASH_REMATCH[5]}
+        pm_mv[anno]=${BASH_REMATCH[6]}
 
     # Pawn move
-    elif [[ ${pm_mv[move]} =~ ^([a-h]?)(x?)([a-h][1-8])((=(.))?)([+#]?)$ ]]; then
+    elif [[ ${pm_mv[move]} =~ ^([a-h]?)(x?)([a-h][1-8])((=(.))?)([+#]?)([?!]+)$ ]]; then
         pm_mv[piece]=P
         pm_mv[file]=${BASH_REMATCH[1]}
         pm_mv[xture]=${BASH_REMATCH[2]}
         pm_mv[dest]=${BASH_REMATCH[3]}
         pm_mv[promote]=${BASH_REMATCH[6]}
         pm_mv[check]=${BASH_REMATCH[7]}
+        pm_mv[anno]=${BASH_REMATCH[8]}
 
         if [[ -n ${pm_mv[xture]} ]]; then
             if [[ -z ${pm_mv[file]} ]]; then

@@ -11,9 +11,11 @@ positions.
 display the single sample opening.
 3.  Type *help* for the list of commands.
 
-A web UI is provided which uses the *httpd* feature of
-[busybox](https://busybox.net).  After installing *busybox*, *cd* into the
-repository directory, and then run *bin/cosa-ui*.
+#### Web UI
+A web UI which supports a read-only display of the openings/games is
+available.  It uses the *httpd* feature of [busybox](https://busybox.net).
+After installing *busybox*, *cd* into the repository directory, and then run
+*bin/cosa-ui*.
 
 #### Development Status
 This software is at a *beta* maturity level.  It is functional, robust, and

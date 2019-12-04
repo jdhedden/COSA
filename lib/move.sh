@@ -163,13 +163,13 @@ cm_parse_move() {
     pm_mv=([move]=$2)
 
     # Support case-insensitive moves
-    if [[ ${pm_mv[move]} =~ ^([kqnr])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)([?!]+)$ ]]; then
+    if [[ ${pm_mv[move]} =~ ^([kqnr])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)([?!]*)$ ]]; then
         cm_parse_move $1 ${2^}
         return $?
     fi
 
     # Piece move
-    if [[ ${pm_mv[move]} =~ ^([KQBNR])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)([?!]+)$ ]]; then
+    if [[ ${pm_mv[move]} =~ ^([KQBNR])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)([?!]*)$ ]]; then
         pm_mv[piece]=${BASH_REMATCH[1]}
         pm_mv[dis]=${BASH_REMATCH[2]}
         pm_mv[xture]=${BASH_REMATCH[3]}
@@ -178,7 +178,7 @@ cm_parse_move() {
         pm_mv[anno]=${BASH_REMATCH[6]}
 
     # Pawn move
-    elif [[ ${pm_mv[move]} =~ ^([a-h]?)(x?)([a-h][1-8])((=(.))?)([+#]?)([?!]+)$ ]]; then
+    elif [[ ${pm_mv[move]} =~ ^([a-h]?)(x?)([a-h][1-8])((=(.))?)([+#]?)([?!]*)$ ]]; then
         pm_mv[piece]=P
         pm_mv[file]=${BASH_REMATCH[1]}
         pm_mv[xture]=${BASH_REMATCH[2]}

@@ -96,7 +96,10 @@ main() {
         if [[ $tmp -eq 0 ]]; then
             echo 'Database is empty'
         fi
-        cd_new_line DB line
+        if ! cd_new_line DB line; then
+            e_err "${GBL[ERR]}"
+            exit 1
+        fi
         turn=1; side=w
         save_db=true
     fi

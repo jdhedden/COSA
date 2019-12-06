@@ -100,7 +100,7 @@ main() {
             e_err "${GBL[ERR]}"
             exit 1
         fi
-        turn=1; side=w
+        cm_last DB $line turn side
         save_db=true
     fi
     if cd_fenify DB $line; then
@@ -184,7 +184,7 @@ main() {
                     # Create new line of study
                     rotate=false
                     cd_new_line DB line
-                    turn=1; side=w
+                    cm_last DB $line turn side
                     save_db=true
                 fi
                 ;;
@@ -273,7 +273,7 @@ main() {
                         else
                             echo 'Database is empty'
                             cd_new_line DB line
-                            turn=1; side=w
+                            cm_last DB $line turn side
                         fi
                     fi
                 else   # Delete from current move onward
@@ -438,6 +438,11 @@ main() {
                     fi
                 elif [[ $(node_get DB $line.$turn.$side.m) == ${move[move]} ]]; then
                     GBL[MSG]="Already on line with move '$move'"
+                elif cm_is_last DB $line $turn $side; then
+                    # Assume user forgot the 'add'
+                    cd_add_moves DB $line turn side "${args[@]}"
+                    save_db=true
+                    cm_last DB $line turn side
                 else
                     GBL[ERR]="No corresponding alternate line for '$move'
    Were you trying to 'add' moves?"

@@ -883,6 +883,18 @@ cm_next() {
 }
 
 
+cm_is_last() {
+    # USAGE: cm_is_last DB $line $turn $side
+
+    #local il_db=$1
+    #local il_l=$2
+    local il_t=$3
+    local il_s=$4
+
+    if cm_next $1 $2 il_t il_s; then return 1; else return 0; fi
+}
+
+
 cm_last() {
     # USAGE: cm_last DB $line turn side
 

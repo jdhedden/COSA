@@ -459,6 +459,7 @@ cd_set_moves() {
                 cm_next -f $1 $2 sm_t sm_s
             else
                 GBL[ERR]="Error adding move '$sm_mv': ${sm_brd[err]}"
+                return 1
             fi
         elif cm_move sm_brd "$sm_mv"; then
             node_set $1 $2.$sm_t.$sm_s.m "${sm_brd[move]}"
@@ -484,7 +485,9 @@ cd_add_moves() {
     local am_fen
     node_get $1 $2.$am_t.$am_s.f am_fen
     cm_next -f $1 $2 am_t am_s
-    cd_set_moves $1 $2 $am_t $am_s "$am_fen" "${@:5}"
+    if ! cd_set_moves $1 $2 $am_t $am_s "$am_fen" "${@:5}"; then
+        return 1
+    fi
     cd_fenify $1 $2
     return 0
 }

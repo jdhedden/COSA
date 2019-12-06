@@ -31,6 +31,7 @@ rot -l              Change board rotation for line
 cmt "..."           Add comment to current move
 cmt -d              Delete comment for current move
 cmt -l "..."        Change description for line
+anno [-d]           Add/remove move annotation
 
 add _move_ ...      Add move(s) to end of line
 del                 Delete from current move to end
@@ -74,7 +75,7 @@ main() {
     local line turn=1 side=w
     local cur_line cur_turn cur_side
     local rotate=false
-    local fen tmp
+    local fen tmp tmp2
 
     echo -e "\n${GBL[WELCOME]}"
 
@@ -95,8 +96,11 @@ main() {
         if [[ $tmp -eq 0 ]]; then
             echo 'Database is empty'
         fi
-        cd_new_line DB line
-        turn=1; side=w
+        if ! cd_new_line DB line; then
+            e_err "${GBL[ERR]}"
+            exit 1
+        fi
+        cm_last DB $line turn side
         save_db=true
     fi
     if cd_fenify DB $line; then
@@ -180,7 +184,7 @@ main() {
                     # Create new line of study
                     rotate=false
                     cd_new_line DB line
-                    turn=1; side=w
+                    cm_last DB $line turn side
                     save_db=true
                 fi
                 ;;
@@ -269,7 +273,7 @@ main() {
                         else
                             echo 'Database is empty'
                             cd_new_line DB line
-                            turn=1; side=w
+                            cm_last DB $line turn side
                         fi
                     fi
                 else   # Delete from current move onward
@@ -295,6 +299,27 @@ main() {
                         ;;
                 esac
                 save_db=true
+                ;;
+            anno)   # Move annotations
+                node_get DB $line.$turn.$side.m tmp
+                tmp2=$tmp
+
+                # Strip old annotation
+                if [[ $tmp =~ ^([^!?]+)[!?]+$ ]]; then
+                    tmp=${BASH_REMATCH[1]}
+                fi
+
+                # Update move
+                if [[ -z ${args[1]} || ${args[1]} == '-d' ]]; then
+                    node_set DB $line.$turn.$side.m "$tmp"
+                    GBL[MSG]="Move annotation removed: $tmp2 => $tmp"
+                elif [[ ${args[1]} =~ ^[!?]+$ ]]; then
+                    tmp+=${args[1]}
+                    node_set DB $line.$turn.$side.m "$tmp"
+                    GBL[MSG]="Move annotation added: $tmp2 => $tmp"
+                else
+                    GBL[ERR]="Invalid move annotation: ${args[1]}"
+                fi
                 ;;
             extract)  # Extract cluster of lines to new DB
                 if cd_extract DB DB2 $line; then
@@ -413,8 +438,14 @@ main() {
                     fi
                 elif [[ $(node_get DB $line.$turn.$side.m) == ${move[move]} ]]; then
                     GBL[MSG]="Already on line with move '$move'"
+                elif cm_is_last DB $line $turn $side; then
+                    # Assume user forgot the 'add'
+                    cd_add_moves DB $line turn side "${args[@]}"
+                    save_db=true
+                    cm_last DB $line turn side
                 else
-                    GBL[ERR]="No corresponding alternate line for '$move'"
+                    GBL[ERR]="No corresponding alternate line for '$move'
+   Were you trying to 'add' moves?"
                 fi
                 ;;
         esac

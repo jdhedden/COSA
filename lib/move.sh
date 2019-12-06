@@ -156,33 +156,36 @@ cm_parse_move() {
     #   [promote]   Pawn promotion piece
     #   [castle]    O-O or O-O-O
     #   [err]       Error message
+    #   [anno]      Annotation marks (!, ?, etc.)
     # )
 
     eval "local -n pm_mv=$1"
     pm_mv=([move]=$2)
 
     # Support case-insensitive moves
-    if [[ ${pm_mv[move]} =~ ^([kqnr])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)$ ]]; then
+    if [[ ${pm_mv[move]} =~ ^([kqnr])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)([?!]*)$ ]]; then
         cm_parse_move $1 ${2^}
         return $?
     fi
 
     # Piece move
-    if [[ ${pm_mv[move]} =~ ^([KQBNR])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)$ ]]; then
+    if [[ ${pm_mv[move]} =~ ^([KQBNR])([a-h]?[1-8]?)(x?)([a-h][1-8])([+#]?)([?!]*)$ ]]; then
         pm_mv[piece]=${BASH_REMATCH[1]}
         pm_mv[dis]=${BASH_REMATCH[2]}
         pm_mv[xture]=${BASH_REMATCH[3]}
         pm_mv[dest]=${BASH_REMATCH[4]}
         pm_mv[check]=${BASH_REMATCH[5]}
+        pm_mv[anno]=${BASH_REMATCH[6]}
 
     # Pawn move
-    elif [[ ${pm_mv[move]} =~ ^([a-h]?)(x?)([a-h][1-8])((=(.))?)([+#]?)$ ]]; then
+    elif [[ ${pm_mv[move]} =~ ^([a-h]?)(x?)([a-h][1-8])((=(.))?)([+#]?)([?!]*)$ ]]; then
         pm_mv[piece]=P
         pm_mv[file]=${BASH_REMATCH[1]}
         pm_mv[xture]=${BASH_REMATCH[2]}
         pm_mv[dest]=${BASH_REMATCH[3]}
         pm_mv[promote]=${BASH_REMATCH[6]}
         pm_mv[check]=${BASH_REMATCH[7]}
+        pm_mv[anno]=${BASH_REMATCH[8]}
 
         if [[ -n ${pm_mv[xture]} ]]; then
             if [[ -z ${pm_mv[file]} ]]; then
@@ -484,6 +487,11 @@ cm_move() {
     elif [[ P == ${mp_mv[piece]} ]]; then
         mp_fms=$(echo ${mp_brd[${mp_pcs[P]}]} | grep -o ${mp_mv[file]}. | xargs)
         if [[ -z $mp_fms ]]; then
+            if [[ ${mp_mv[file]} == 'b' && ${mp_mv[dest]:0:1} =~ [ac] && -n ${mp_mv[xture]} ]]; then
+                if cm_move $1 ${2^}; then   # b -> B
+                    return 0
+                fi
+            fi
             mp_brd[err]="No pawn on '${mp_mv[file]}' file"
             return 1
         fi
@@ -498,6 +506,11 @@ cm_move() {
 
         if [[ -z ${mp_mv[orig]} ]]; then
             if [[ -n ${mp_mv[xture]} ]]; then
+                if [[ ${mp_mv[file]} == 'b' && ${mp_mv[dest]:0:1} =~ [ac] ]]; then
+                    if cm_move $1 ${2^}; then   # b -> B
+                        return 0
+                    fi
+                fi
                 mp_brd[err]="No pawn on '${mp_mv[file]}' file can capture to ${mp_mv[dest]}"
                 return 1
             fi
@@ -867,6 +880,18 @@ cm_next() {
         fi
     fi
     return 0
+}
+
+
+cm_is_last() {
+    # USAGE: cm_is_last DB $line $turn $side
+
+    #local il_db=$1
+    #local il_l=$2
+    local il_t=$3
+    local il_s=$4
+
+    if cm_next $1 $2 il_t il_s; then return 1; else return 0; fi
 }
 
 

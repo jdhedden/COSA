@@ -1,5 +1,10 @@
 #### Changelog
 
+* Version 0.8.0 - 2019-12-06
+    * Support annotation marks on move (?, ?!, etc.)
+    * Full case-insensitive move support
+    * Auto 'add' from last move
+
 * Version 0.7.2 - 2019-12-03
     * Changed command for starting a new line of study
 

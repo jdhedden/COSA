@@ -487,6 +487,11 @@ cm_move() {
     elif [[ P == ${mp_mv[piece]} ]]; then
         mp_fms=$(echo ${mp_brd[${mp_pcs[P]}]} | grep -o ${mp_mv[file]}. | xargs)
         if [[ -z $mp_fms ]]; then
+            if [[ ${mp_mv[file]} == 'b' && ${mp_mv[dest]:0:1} =~ [ac] && -n ${mp_mv[xture]} ]]; then
+                if cm_move $1 ${2^}; then   # b -> B
+                    return 0
+                fi
+            fi
             mp_brd[err]="No pawn on '${mp_mv[file]}' file"
             return 1
         fi
@@ -501,6 +506,11 @@ cm_move() {
 
         if [[ -z ${mp_mv[orig]} ]]; then
             if [[ -n ${mp_mv[xture]} ]]; then
+                if [[ ${mp_mv[file]} == 'b' && ${mp_mv[dest]:0:1} =~ [ac] ]]; then
+                    if cm_move $1 ${2^}; then   # b -> B
+                        return 0
+                    fi
+                fi
                 mp_brd[err]="No pawn on '${mp_mv[file]}' file can capture to ${mp_mv[dest]}"
                 return 1
             fi

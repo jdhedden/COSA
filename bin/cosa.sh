@@ -439,7 +439,8 @@ main() {
                 elif [[ $(node_get DB $line.$turn.$side.m) == ${move[move]} ]]; then
                     GBL[MSG]="Already on line with move '$move'"
                 else
-                    GBL[ERR]="No corresponding alternate line for '$move'"
+                    GBL[ERR]="No corresponding alternate line for '$move'
+   Were you trying to 'add' moves?"
                 fi
                 ;;
         esac

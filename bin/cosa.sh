@@ -20,8 +20,8 @@ $                   Jump to last move
 _move_              Go to line for alt. move
 !                   Go to starting position
 
-line                Select a line of study, or create
-                     a new one
+line [-n]           Select a line of study, or create
+                     a new one (-n)
 --                  Return to previous line (stacked)
 !!|main             Go to main line
 
@@ -164,7 +164,9 @@ main() {
                 ;;
             line)   # Select a line of study, or create a new line
                 hist+=($line.$turn.$side)
-                if cd_choose_line -n DB line turn side tmp; then
+                if [[ ! ${args[1]} =~ -n ]] && \
+                    cd_choose_line -n DB line turn side tmp
+                then
                     if [[ $tmp -eq 1 ]]; then
                         GBL[MSG]='No other lines in database'
                     fi

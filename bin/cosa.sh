@@ -185,9 +185,17 @@ main() {
                 else
                     # Create new line of study
                     rotate=false
-                    cd_new_line DB line
-                    cm_last DB $line turn side
-                    save_db=true
+                    if cd_new_line DB line; then
+                        cm_last DB $line turn side
+                        save_db=true
+                    else
+                        cd_del_line DB $line
+                        ary=(${hist[$tmp]//./ })
+                        line=${ary[0]}
+                        turn=${ary[1]}
+                        side=${ary[2]}
+                        unset hist[$tmp]
+                    fi
                 fi
                 ;;
             rot)    # Toggle rotate board; -l = toggle rotate for line
@@ -274,7 +282,9 @@ main() {
                             cd_fenify DB $line
                         else
                             echo 'Database is empty'
-                            cd_new_line DB line
+                            while ! cd_new_line DB line; do
+                                cd_del_line DB $line
+                            done
                             cm_last DB $line turn side
                         fi
                     fi

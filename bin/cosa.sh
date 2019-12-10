@@ -20,8 +20,8 @@ $                   Jump to last move
 _move_              Go to line for alt. move
 !                   Go to starting position
 
-line                Select a line of study, or create
-                     a new one
+line [-n]           Select a line of study, or create
+                     a new one (-n)
 --                  Return to previous line (stacked)
 !!|main             Go to main line
 
@@ -66,6 +66,29 @@ CLEAN [-e]          Delete logs or engine result files
 ABORT               Exit without saving database
 
 __HELP__
+}
+
+
+pop_hist() {
+    # USAGE: pop_hist hist line turn side
+
+    eval "local -n ph_h=$1"
+    eval "local -n ph_l=$2"
+    eval "local -n ph_t=$3"
+    eval "local -n ph_s=$4"
+
+    local ph_i=$(( ${#ph_h[@]} - 1 ))
+    if [[ $ph_i -lt 0 ]]; then
+        GBL[MSG]='History stack is empty'
+        return 1
+    fi
+
+    local ph_a=(${ph_h[$ph_i]//./ })
+    line=${ph_a[0]}
+    turn=${ph_a[1]}
+    side=${ph_a[2]}
+    unset ph_h[$ph_i]
+    return 0
 }
 
 
@@ -120,16 +143,7 @@ main() {
                 cm_next -b DB $line turn side
                 ;;
             --)     # Jump back in history
-                tmp=$(( ${#hist[@]} - 1 ))
-                if [[ $tmp -lt 0 ]]; then
-                    GBL[MSG]='History stack is empty'
-                else
-                    ary=(${hist[$tmp]//./ })
-                    line=${ary[0]}
-                    turn=${ary[1]}
-                    side=${ary[2]}
-                    unset hist[$tmp]
-                fi
+                pop_hist hist line turn side
                 ;;
             [1-9]*) # Go to turn number
                 if [[ ${args[0]} =~ ^([0-9]+)(\.?([bw]))? ]]; then
@@ -164,7 +178,9 @@ main() {
                 ;;
             line)   # Select a line of study, or create a new line
                 hist+=($line.$turn.$side)
-                if cd_choose_line -n DB line turn side tmp; then
+                if [[ ! ${args[1]} =~ -n ]] && \
+                    cd_choose_line -n DB line turn side tmp
+                then
                     if [[ $tmp -eq 1 ]]; then
                         GBL[MSG]='No other lines in database'
                     fi
@@ -183,9 +199,13 @@ main() {
                 else
                     # Create new line of study
                     rotate=false
-                    cd_new_line DB line
-                    cm_last DB $line turn side
-                    save_db=true
+                    if cd_new_line DB line; then
+                        cm_last DB $line turn side
+                        save_db=true
+                    else
+                        cd_del_line DB $line
+                        pop_hist hist line turn side
+                    fi
                 fi
                 ;;
             rot)    # Toggle rotate board; -l = toggle rotate for line
@@ -216,9 +236,8 @@ main() {
                         save_db=true
                         cm_last DB $line turn side
                     else
-                        tmp=$(( ${#hist[@]} - 1 ))
-                        part +1 . ${hist[$tmp]} line
-                        unset hist[$tmp]
+                        cd_del_line DB $line
+                        pop_hist hist line turn side
                     fi
                 fi
                 ;;
@@ -272,7 +291,9 @@ main() {
                             cd_fenify DB $line
                         else
                             echo 'Database is empty'
-                            cd_new_line DB line
+                            while ! cd_new_line DB line; do
+                                cd_del_line DB $line
+                            done
                             cm_last DB $line turn side
                         fi
                     fi
@@ -340,7 +361,7 @@ main() {
                     GBL[MSG]="New DB saved to $tmp"
                     cv_window $tmp $line.$turn.$side
                     rotate=false
-                    cd_choose_line DB line turn side
+                    cd_choose_line DB line turn side tmp
                     cd_fenify DB $line
                 fi
                 ;;

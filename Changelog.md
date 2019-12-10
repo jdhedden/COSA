@@ -1,5 +1,8 @@
 #### Changelog
 
+* Version 0.8.1 - 2019-12-10
+    * Cleanups following line creation failures
+
 * Version 0.8.0 - 2019-12-06
     * Support annotation marks on move (?, ?!, etc.)
     * Full case-insensitive move support

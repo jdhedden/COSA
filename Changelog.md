@@ -1,6 +1,6 @@
 #### Changelog
 
-* Version 0.8.1 - 2019-12-10
+* Version 0.8.2 - 2019-12-11
     * Cleanups following line creation failures
 
 * Version 0.8.0 - 2019-12-06

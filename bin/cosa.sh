@@ -119,10 +119,10 @@ main() {
         if [[ $tmp -eq 0 ]]; then
             echo 'Database is empty'
         fi
-        if ! cd_new_line DB line; then
+        while ! cd_new_line DB line; do
             e_err "${GBL[ERR]}"
-            exit 1
-        fi
+            cd_del_line DB $line
+        done
         cm_last DB $line turn side
         save_db=true
     fi
@@ -292,6 +292,7 @@ main() {
                         else
                             echo 'Database is empty'
                             while ! cd_new_line DB line; do
+                                e_err "${GBL[ERR]}"
                                 cd_del_line DB $line
                             done
                             cm_last DB $line turn side

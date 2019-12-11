@@ -1,5 +1,8 @@
 #### Changelog
 
+* Version 0.8.3 - 2019-12-11
+    * Refenify DB
+
 * Version 0.8.2 - 2019-12-11
     * Cleanups following line creation failures
 

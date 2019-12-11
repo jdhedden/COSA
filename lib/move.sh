@@ -219,7 +219,7 @@ cm_parse_move() {
             if [[ -z ${pm_mv[promote]} ]]; then
                 pm_mv[err]="Missing pawn promotion piece: $2"
                 return 1
-            elif [[ ! QBNR =~ ${pm_mv[promote]} ]]; then
+            elif [[ ! QBNRqbnr =~ ${pm_mv[promote]} ]]; then
                 pm_mv[err]="Invalid pawn promotion piece: $2"
                 return 1
             elif [[ qbnr =~ ${pm_mv[promote]} ]]; then

@@ -441,14 +441,14 @@ main() {
                     hist+=($line.$turn.$side)
                     line=$tmp
                 elif [[ $(node_get DB $line.$turn.$side.m) == ${move[move]} ]]; then
-                    GBL[MSG]="Already on line with move '$move'"
+                    GBL[MSG]="Already on line with move '${move[move]}'"
                 elif cm_is_last DB $line $turn $side; then
                     # Assume user forgot the 'add'
                     cd_add_moves DB $line turn side "${args[@]}"
                     save_db=true
                     cm_last DB $line turn side
                 else
-                    GBL[ERR]="No corresponding alternate line for '$move'
+                    GBL[ERR]="No corresponding alternate line for '${move[move]}'
    Were you trying to 'add' moves?"
                 fi
                 ;;

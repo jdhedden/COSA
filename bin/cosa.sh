@@ -59,8 +59,6 @@ param               Set engine parameters
 win                 Open currently line in new window
 
 DEBUG [true|false]  Turn on/set debug mode
-REFEN               Recalculate FENs for all lines in
-                     database (may take awhile)
 CLEAN [-e]          Delete logs or engine result files
 
 ^D|exit|quit        Save database if needed, and exit
@@ -127,9 +125,6 @@ main() {
         cm_last DB $line turn side
         save_db=true
     fi
-    if cd_fenify DB $line; then
-        save_db=true
-    fi
 
     cv_moves_and_board DB $line $turn $side $rotate
     echo -e "\n${GBL[WELCOME]}\n"
@@ -193,9 +188,6 @@ main() {
                         unset hist[$tmp]
                     else
                         rotate=false
-                        if cd_fenify DB $line; then
-                            save_db=true
-                        fi
                     fi
                 else
                     # Create new line of study
@@ -288,9 +280,7 @@ main() {
                         cd_orphan DB
                         save_db=true
                         rotate=false
-                        if cd_choose_line DB line turn side tmp; then
-                            cd_fenify DB $line
-                        else
+                        if ! cd_choose_line DB line turn side tmp; then
                             echo 'Database is empty'
                             while ! cd_new_line DB line; do
                                 e_err "${GBL[ERR]}"
@@ -364,7 +354,6 @@ main() {
                     cv_window $tmp $line.$turn.$side
                     rotate=false
                     cd_choose_line DB line turn side tmp
-                    cd_fenify DB $line
                 fi
                 ;;
             save)   # Write out DB
@@ -415,10 +404,6 @@ main() {
                 cv_window ${GBL[DB_FILE]} $line.$turn.$side
                 line=$cur_line
                 ;;
-            REFEN)
-                cd_refenify DB
-                save_db=true
-                ;;
             CLEAN)
                 if [[ ${args[1]} == '-e' ]]; then
                     rm -f $COSA/dat/engine/*
@@ -455,9 +440,6 @@ main() {
                 elif node_get -q DB $line.$turn.$side.a.${move[move]} tmp; then
                     hist+=($line.$turn.$side)
                     line=$tmp
-                    if cd_fenify DB $line; then
-                        save_db=true
-                    fi
                 elif [[ $(node_get DB $line.$turn.$side.m) == ${move[move]} ]]; then
                     GBL[MSG]="Already on line with move '$move'"
                 elif cm_is_last DB $line $turn $side; then

@@ -223,11 +223,6 @@ main() {
         return 0
     fi
 
-    local save_db=false
-    if cd_fenify DB $L; then
-        save_db=true
-    fi
-
     if [[ -z $T ]]; then
         if node_get -q DB $L.s T; then
             part +$ . $T S
@@ -239,11 +234,6 @@ main() {
 
     # Show board
     show_board
-
-    # Write DB changes to disk
-    if $save_db; then
-        cd_save DB "${GBL[DB_FILE]}"
-    fi
 }
 
 

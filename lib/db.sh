@@ -487,7 +487,6 @@ cd_add_moves() {
     if ! cd_set_moves $1 $2 $am_t $am_s "$am_fen" "${@:5}"; then
         return 1
     fi
-    cd_fenify $1 $2
     return 0
 }
 

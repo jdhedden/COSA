@@ -130,20 +130,21 @@ cd_save() {
 #####
 
 cd_fenify() {
-    # USAGE: cd_fenify DB $line
+    # USAGE: cd_fenify DB $line [force]
     #local fl_db=$1
     #local fl_l=$2
 
-    local fl_t=1 fl_s=w
+    local fl_t=1 fl_s=w fl_f
 
     # Step through moves until we find an unprocessed move
-    local fl_f
-    while node_exists $1 $2.$fl_t.$fl_s.f; do
-        node_get $1 $2.$fl_t.$fl_s.f fl_f
-        if ! cm_next $1 $2 fl_t fl_s; then
-            return 1   # All FEN-ified
-        fi
-    done
+    if [[ -z $3 ]]; then
+        while node_exists $1 $2.$fl_t.$fl_s.f; do
+            node_get $1 $2.$fl_t.$fl_s.f fl_f
+            if ! cm_next $1 $2 fl_t fl_s; then
+                return 1   # All FEN-ified
+            fi
+        done
+    fi
 
     local -A fl_bd
     cm_set_board fl_bd "$fl_f"
@@ -166,16 +167,14 @@ cd_fenify() {
     return 1
 }
 
-cd_defenify() {
-    # USAGE: cd_defenify DB
-    eval "local -n dd_db=$1"
-    local key
-    for key in "${!dd_db[@]}"; do
-        if [[ $key =~ ^_\.[0-9]+\.[0-9]+\.(b|w)\.f$ ]]; then
-            node_del $1 $key
-        elif [[ $key =~ ^_\.[0-9]+\.t$ ]]; then
-            node_del $1 $key
-        fi
+cd_refenify() {
+    # USAGE: cd_refenify DB
+    #local rf_db=$1
+
+    for rf_l in $(node_get -q $1); do
+        e_info $(node_get $1 $rf_l.c)
+        part +$ . $rf_l rf_l
+        cd_fenify $1 $rf_l force
     done
 }
 

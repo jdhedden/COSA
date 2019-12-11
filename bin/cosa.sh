@@ -59,7 +59,8 @@ param               Set engine parameters
 win                 Open currently line in new window
 
 DEBUG [true|false]  Turn on/set debug mode
-DEFEN               Purge FENs from database
+REFEN               Recalculate FENs for all lines in
+                     database (may take awhile)
 CLEAN [-e]          Delete logs or engine result files
 
 ^D|exit|quit        Save database if needed, and exit
@@ -414,9 +415,8 @@ main() {
                 cv_window ${GBL[DB_FILE]} $line.$turn.$side
                 line=$cur_line
                 ;;
-            DEFEN)
-                cd_defenify DB
-                cd_fenify DB $line
+            REFEN)
+                cd_refenify DB
                 save_db=true
                 ;;
             CLEAN)

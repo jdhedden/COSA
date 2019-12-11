@@ -1,10 +1,8 @@
 #### Changelog
 
-* Version 0.8.3 - 2019-12-11
-    * Refenify DB
-
-* Version 0.8.2 - 2019-12-11
+* Version 0.8.1 - 2019-12-11
     * Cleanups following line creation failures
+    * Refenify DB command
 
 * Version 0.8.0 - 2019-12-06
     * Support annotation marks on move (?, ?!, etc.)

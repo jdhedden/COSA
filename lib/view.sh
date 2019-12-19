@@ -202,11 +202,11 @@ cv_moves_and_board() {
 
     # Move wrap
     cm_last $1 $2 mb_last mb_x
-    if [[ $mb_last -gt 25 ]]; then
-        if [[ $cm_last -gt 39 ]]; then
+    if [[ $mb_last -gt 23 ]]; then
+        if [[ $cm_last -gt 35 ]]; then
             mb_tt2=$(( mb_last / 2 + 7 ))
         else
-            mb_tt2=26
+            mb_tt2=24
         fi
     fi
 
@@ -239,7 +239,7 @@ cv_moves_and_board() {
         (( mb_tt++ ))
     done
 
-    while [[ $mb_tt -le 11 || ( -z $mb_tt2 && $mb_tt -le 25 ) ]]; do
+    while [[ $mb_tt -le 11 || ( -z $mb_tt2 && $mb_tt -le 23 ) ]]; do
         if ! node_get -q $1 $2.$mb_tt.w.m mb_wmv; then
             break
         fi
@@ -300,7 +300,7 @@ cv_moves_and_board() {
         (( mb_tt2++ ))
     done
 
-    while [[ $mb_tt -le 25 ]]; do
+    while [[ $mb_tt -le 23 ]]; do
         if ! node_get -q $1 $2.$mb_tt.w.m mb_wmv; then
             break
         fi

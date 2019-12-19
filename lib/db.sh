@@ -447,8 +447,12 @@ cd_set_moves() {
 
     local sm_mv sm_m
     for sm_mv in "${@:6}"; do
-        if [[ $sm_mv =~ ^[0-9]+\.$ ]]; then
-            continue
+        # Ignore/remove turn numbers
+        if [[ $sm_mv =~ ^[0-9]+\.+(.*)$ ]]; then
+            sm_mv=${BASH_REMATCH[1]}
+            if [[ -z $sm_mv ]]; then
+                continue
+            fi
         fi
         # Add engine moves
         if [[ $sm_mv =~ ^[a-h][1-8][a-h][1-8]$ ]]; then

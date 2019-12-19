@@ -1,5 +1,8 @@
 #### Changelog
 
+* Version 0.8.2 - 2019-12-19
+    * Wrap move list
+
 * Version 0.8.1 - 2019-12-11
     * Cleanups following line creation failures
 

@@ -158,10 +158,10 @@ cv_moves_and_board() {
     #local mb_rot=$5
 
     # Generate the current board
-    local mb_f
-    node_get $1 $2.$3.$4.f mb_f
+    local mb_x
+    node_get $1 $2.$3.$4.f mb_x
     local -A mb_brd
-    cm_set_board mb_brd "$mb_f"
+    cm_set_board mb_brd "$mb_x"
 
     # Header
     if ${UTIL[DEBUG]}; then
@@ -196,39 +196,131 @@ cv_moves_and_board() {
     cv_gen_board $mb_rr -a mb_brd mb_bb
     local mb_fmt ii=0
 
-    local mb_wmv mb_bmv
-    local mb_tt=1;
+    local mb_wmv mb_bmv mb_wmv2 mb_bmv2
+    local mb_tt=1 mb_tt2 mb_last
     local done=
 
-    while [[ -z $done || $ii -le 8 ]]; do
+    # Move wrap
+    cm_last $1 $2 mb_last mb_x
+    if [[ $mb_last -gt 21 ]]; then
+        if [[ $cm_last -gt 31 ]]; then
+            mb_tt2=$(( mb_last / 2 + 7 ))
+        else
+            mb_tt2=22
+        fi
+    fi
+
+    while [[ $ii -le 8 ]]; do
         if ! node_get -q $1 $2.$mb_tt.w.m mb_wmv; then
-            if [[ $ii -gt 8 ]]; then break; fi
             mb_wmv=
         fi
         if ! node_get -q $1 $2.$mb_tt.b.m mb_bmv; then
             mb_bmv=
-            done=true
         fi
 
         if [[ $mb_tt -eq $3 ]]; then
             # Display highlighted move
             if [[ $4 == w ]]; then
-                mb_fmt="%2s. ${X[c]}%-5s${X[0]}  %-5s           %s\n"
+                mb_fmt="%2s. ${X[c]}%-8s${X[0]}  %-8s  %s\n"
             else
-                mb_fmt="%2s. %-5s  ${X[c]}%-5s${X[0]}           %s\n"
+                mb_fmt="%2s. %-8s  ${X[c]}%-8s${X[0]}  %s\n"
             fi
         else
             # Display moves
-            mb_fmt="%2s. %-5s  %-5s           %s\n"
+            mb_fmt="%2s. %-8s  %-8s  %s\n"
         fi
 
         if [[ -n $mb_wmv || -n $mb_bmv ]]; then
             printf "$mb_fmt" $mb_tt "$mb_wmv" "$mb_bmv" "${mb_bb[$ii]}"
         else
-            echo "                           ${mb_bb[$ii]}"
+            echo "                        ${mb_bb[$ii]}"
         fi
         (( ii++ ))
+        (( mb_tt++ ))
+    done
 
+    while [[ $mb_tt -le 11 || ( -z $mb_tt2 && $mb_tt -le 21 ) ]]; do
+        if ! node_get -q $1 $2.$mb_tt.w.m mb_wmv; then
+            break
+        fi
+        if ! node_get -q $1 $2.$mb_tt.b.m mb_bmv; then
+            mb_bmv=
+        fi
+
+        if [[ $mb_tt -eq $3 ]]; then
+            # Display highlighted move
+            if [[ $4 == w ]]; then
+                mb_fmt="%2s. ${X[c]}%-8s${X[0]}  %-8s\n"
+            else
+                mb_fmt="%2s. %-8s  ${X[c]}%-8s${X[0]}\n"
+            fi
+        else
+            # Display moves
+            mb_fmt="%2s. %-8s  %-8s\n"
+        fi
+
+        printf "$mb_fmt" $mb_tt "$mb_wmv" "$mb_bmv"
+        (( mb_tt++ ))
+    done
+
+    while [[ -n $mb_tt2 && $mb_tt2 -le $mb_last ]]; do
+        node_get -q $1 $2.$mb_tt.w.m mb_wmv
+        node_get -q $1 $2.$mb_tt.b.m mb_bmv
+        node_get -q $1 $2.$mb_tt2.w.m mb_wmv2
+        if ! node_get -q $1 $2.$mb_tt2.b.m mb_bmv2; then
+            mb_bmv2=
+        fi
+
+        if [[ $mb_tt -eq $3 ]]; then
+            # Display highlighted move
+            if [[ $4 == w ]]; then
+                mb_fmt="%2s. ${X[c]}%-8s${X[0]}  %-8s"
+            else
+                mb_fmt="%2s. %-8s  ${X[c]}%-8s${X[0]}"
+            fi
+        else
+            # Display moves
+            mb_fmt="%2s. %-8s  %-8s"
+        fi
+
+        if [[ $mb_tt2 -eq $3 ]]; then
+            # Display highlighted move
+            if [[ $4 == w ]]; then
+                mb_fmt+="  %2s. ${X[c]}%-8s${X[0]}  %-8s\n"
+            else
+                mb_fmt+="  %2s. %-8s  ${X[c]}%-8s${X[0]}\n"
+            fi
+        else
+            # Display moves
+            mb_fmt+="  %2s. %-8s  %-8s\n"
+        fi
+
+        printf "$mb_fmt" $mb_tt "$mb_wmv" "$mb_bmv" $mb_tt2 "$mb_wmv2" "$mb_bmv2"
+        (( mb_tt++ ))
+        (( mb_tt2++ ))
+    done
+
+    while [[ $mb_tt -le 21 ]]; do
+        if ! node_get -q $1 $2.$mb_tt.w.m mb_wmv; then
+            break
+        fi
+        if ! node_get -q $1 $2.$mb_tt.b.m mb_bmv; then
+            mb_bmv=
+        fi
+
+        if [[ $mb_tt -eq $3 ]]; then
+            # Display highlighted move
+            if [[ $4 == w ]]; then
+                mb_fmt="%2s. ${X[c]}%-8s${X[0]}  %-8s\n"
+            else
+                mb_fmt="%2s. %-8s  ${X[c]}%-8s${X[0]}\n"
+            fi
+        else
+            # Display moves
+            mb_fmt="%2s. %-8s  %-8s\n"
+        fi
+
+        printf "$mb_fmt" $mb_tt "$mb_wmv" "$mb_bmv"
         (( mb_tt++ ))
     done
 

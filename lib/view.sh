@@ -233,7 +233,7 @@ cv_moves_and_board() {
         if [[ -n $mb_wmv || -n $mb_bmv ]]; then
             printf "$mb_fmt" $mb_tt "$mb_wmv" "$mb_bmv" "${mb_bb[$ii]}"
         else
-            echo "                           ${mb_bb[$ii]}"
+            echo "                        ${mb_bb[$ii]}"
         fi
         (( ii++ ))
         (( mb_tt++ ))

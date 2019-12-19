@@ -221,13 +221,13 @@ cv_moves_and_board() {
         if [[ $mb_tt -eq $3 ]]; then
             # Display highlighted move
             if [[ $4 == w ]]; then
-                mb_fmt="%2s. ${X[c]}%-8s${X[0]}  %-8s     %s\n"
+                mb_fmt="%2s. ${X[c]}%-8s${X[0]}  %-8s  %s\n"
             else
-                mb_fmt="%2s. %-8s  ${X[c]}%-8s${X[0]}     %s\n"
+                mb_fmt="%2s. %-8s  ${X[c]}%-8s${X[0]}  %s\n"
             fi
         else
             # Display moves
-            mb_fmt="%2s. %-8s  %-8s     %s\n"
+            mb_fmt="%2s. %-8s  %-8s  %s\n"
         fi
 
         if [[ -n $mb_wmv || -n $mb_bmv ]]; then

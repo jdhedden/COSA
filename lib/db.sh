@@ -150,16 +150,20 @@ cd_fenify() {
     cm_set_board fl_bd "$fl_f"
 
     # Process remaining moves
+    echo -n 'FENifying'
     local fl_mv fl_upd=false
     while node_get -q $1 $2.$fl_t.$fl_s.m fl_mv; do
+        echo -n '.'
         if ! cm_move fl_bd "$fl_mv"; then
             GBL[ERR]="Failed to fenify: l=$2 t=$fl_t s=$fl_s m=$fl_mv '${fl_bd[err]}'"
+            echo
             return 1
         fi
         node_set $1 $2.$fl_t.$fl_s.f "${fl_bd[fen]}"
         fl_upd=true
         cm_next -f $1 $2 fl_t fl_s
     done
+    echo
     if $fl_upd; then
         node_set $1 $2.t $(date +%s)
         return 0

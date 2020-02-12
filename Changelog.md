@@ -1,5 +1,8 @@
 #### Changelog
 
+* Version 0.8.3 - 2020-02-12
+    * FENify fix
+
 * Version 0.8.2 - 2019-12-19
     * Wrap move list
 

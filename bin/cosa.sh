@@ -126,6 +126,9 @@ main() {
         save_db=true
     fi
 
+    if cd_fenify DB $line; then
+        save_db=true
+    fi
     cv_moves_and_board DB $line $turn $side $rotate
     echo -e "\n${GBL[WELCOME]}\n"
 
@@ -454,6 +457,9 @@ main() {
                 ;;
         esac
 
+        if cd_fenify DB $line; then
+            save_db=true
+        fi
         cv_moves_and_board DB $line $turn $side $rotate
 
         if [[ -n ${GBL[ERR]} ]]; then

@@ -120,6 +120,7 @@ main() {
         fi
         while ! cd_new_line DB line; do
             e_err "${GBL[ERR]}"
+            GBL[ERR]=
             cd_del_line DB $line
         done
         cm_last DB $line turn side

@@ -484,7 +484,9 @@ main() {
     # Done - save changes to DB
     if $save_db && ! ${GBL[READONLY]}; then
         cd_save DB "${GBL[DB_FILE]}"
+        echo -e "\nDB saved"
     fi
+    echo 'Good-bye'
     return 0
 }
 

@@ -48,7 +48,7 @@ ce_run() {
 
     local ii
 
-    if [[ ! -f ${ENG[ENG]} ]]; then
+    if [[ -z ${ENG[ENG]} ]]; then
         rn_res[err]='Engine not available on this platform'
         return 1
     fi
@@ -172,7 +172,6 @@ __PARAMS__
     exec 6>&-
     exec 7>&-
     rm -f ${ENG[TO]} ${ENG[FM]}
-
 }
 
 

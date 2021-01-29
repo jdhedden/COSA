@@ -3,7 +3,6 @@
 # Chess Opening Study Aid
 
 export COSA=$(realpath $(dirname $0)/..)
-. $HOME/.loc
 . $COSA/lib/utils
 . $COSA/cfg/cfg.sh
 

@@ -1,5 +1,8 @@
 #### Changelog
 
+* Version 0.8.4 - 2021-01-28
+    * Fix check for Stockfish engine
+
 * Version 0.8.3 - 2020-02-12
     * FENify fix
 

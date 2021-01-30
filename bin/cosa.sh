@@ -405,7 +405,7 @@ main() {
                 if ! node_get -q DB $line.$turn.$side.a.${args[1]} line; then
                     line=$cur_line
                 fi
-                cv_window ${GBL[DB_FILE]} $line.$turn.$side
+                cv_window ${GBL[DB_FILE]} --readonly $line.$turn.$side
                 line=$cur_line
                 ;;
             CLEAN)
@@ -503,7 +503,7 @@ while [[ -n $1 ]]; do
             GBL[START]=$2
             shift 2
             ;;
-        ?(-)-w*)
+        ?(-)-r*)
             GBL[READONLY]=true
             shift
             ;;

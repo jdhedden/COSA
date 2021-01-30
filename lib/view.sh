@@ -353,7 +353,13 @@ cv_moves_and_board() {
 
 
 cv_window() {
-    # USAGE: cv_window "$file" $l.$t.$s
+    # USAGE: cv_window [--readonly] "$file" $l.$t.$s
+
+    local nw_ro=
+    if [[ $1 == '--readonly' ]]; then
+        nw_ro=$1
+        shift
+    fi
 
     #local nw_file=$1
     #local nw_start=$2
@@ -362,13 +368,14 @@ cv_window() {
     if ${UTIL[DEBUG]}; then
         nw_debug='-d'
     fi
-    local nw_cmd=$(printf "$WINDOW_CMD" "$0 $nw_debug -w $1 -s $2")
+    local nw_cmd=$(printf "$WINDOW_CMD" "$0 $nw_debug $nw_ro $1 -s $2")
     if $WINDOW_BKG; then
         $nw_cmd &
     else
         $nw_cmd
     fi
 }
+
 
 cv_enumerate_moves() {
     # USAGE: cv_enumerate_moves moves output [$turn [$side]]

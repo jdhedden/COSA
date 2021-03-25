@@ -3,7 +3,7 @@
 <<'__USAGE__'
 
     # Libraries that can be included
-    UTILS_MISC=true     # lock, ask, sorted, ...
+    UTILS_MISC=true     # ask, sorted, ...
     UTILS_TREE=true
 
     # Script associated files (defaults shown)
@@ -71,9 +71,7 @@ fi
 mkdir -p $(dirname "${UTIL[LOG]}")
 UTIL[_LOG]='if [[ ! -s ${UTIL[LOG]} ]]; then rm -f ${UTIL[LOG]}; fi'
 
-log_all() {
-    exec &> >(tee -i ${UTIL[LOG]})
-}
+log_all() { exec &> >(tee -i ${UTIL[LOG]}); }
 
 # Temp file
 : ${UTIL[TMP]:=$COSA/tmp/${UTIL[BASE]}_$$.tmp}
@@ -93,12 +91,8 @@ usage() { echo -e "\nUsage: ${UTIL[USAGE]}\n"; exit 2; }
 
 
 # Include libraries
-if [[ $UTILS_MISC == true ]]; then
-    . $COSA/lib/utils_misc
-fi
-if [[ $UTILS_TREE == true ]]; then
-    . $COSA/lib/utils_tree
-fi
+${UTILS_MISC:-false} && source $HOME/bin/utils_misc
+${UTILS_TREE:-false} && source $HOME/bin/utils_tree
 
 
 # ANSI Escape Sequences

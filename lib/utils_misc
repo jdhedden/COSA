@@ -9,17 +9,6 @@
 __USAGE__
 
 
-# Enforce only once instance running at a time
-lock() {
-    eval "exec 9>'$COSA/tmp/.${UTIL[BASE]}.lock'"
-    if ! flock -n 9; then
-        e_warn "${UTIL[SELF]} already running"
-        exit 1
-    fi
-}
-
-# ---
-
 <<'__EX__'
 # Example usage:
 
@@ -40,15 +29,11 @@ ask_confirm() {
 }
 
 # Test whether the result of an 'ask' is a confirmation
-is_confirmed() {
-    [[ $REPLY =~ ^[Yy] ]]
-}
+is_confirmed() { [[ $REPLY =~ ^[Yy] ]]; }
 
 # ---
 
-sorted() {
-    printf '%s\n' "$@" | sort
-}
+sorted() { printf '%s\n' "$@" | sort; }
 
 # ---
 
@@ -101,6 +86,14 @@ copy_hash() {
     done
 }
 
+clear_hash () {
+    eval "local -n _ch_h=$1"
+    local _ch_x
+    for _ch_x in "${!_ch_h[@]}"; do
+        unset _ch_h[$_ch_x]
+    done
+}
+
 # ---
 
 # Make ANSI escape sequences
@@ -133,15 +126,6 @@ make_es() {
         fi
     done
     echo -n "[${_seq:0:-1}m"
-}
-
-# ---
-
-call_stack() {
-    e_info 'Call stack:'
-    local ii=0
-    while caller $ii; do ((ii++)); done
-    e_info '---'
 }
 
 # EOF

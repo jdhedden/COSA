@@ -2,10 +2,6 @@
 
 <<'__USAGE__'
 
-    # Libraries that can be included
-    UTILS_MISC=true     # ask, sorted, ...
-    UTILS_TREE=true
-
     # Script associated files (defaults shown)
     declare -A UTIL=(
         [CFG]=${UTIL[DIR]}/${UTIL[BASE]}.cfg
@@ -14,7 +10,7 @@
     )
 
     # Source this file's functionality
-    . $COSA/lib/utils
+    . $COSA/lib/utils [misc tree]
 
     # Capture all output to log
     log_all
@@ -91,8 +87,14 @@ usage() { echo -e "\nUsage: ${UTIL[USAGE]}\n"; exit 2; }
 
 
 # Include libraries
-${UTILS_MISC:-false} && source $HOME/bin/utils_misc
-${UTILS_TREE:-false} && source $HOME/bin/utils_tree
+# Include libraries
+while [[ $# -gt 0 ]]; do
+    if ! source $COSA/lib/utils_${1/utils_/} 2>/dev/null; then
+        echo "ERROR: Unknown library 'utils_${1/utils_/}'"
+        exit 1
+    fi
+    shift
+done
 
 
 # ANSI Escape Sequences

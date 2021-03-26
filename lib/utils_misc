@@ -3,8 +3,7 @@
 <<'__USAGE__'
 
     To include:
-        UTILS_MISC=true
-        . $COSA/lib/utils
+        . $COSA/lib/utils misc
 
 __USAGE__
 

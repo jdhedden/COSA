@@ -3,8 +3,7 @@
 <<'__USAGE__'
 
     To include:
-        UTILS_TREE=true
-        . $COSA/lib/utils
+        . $COSA/lib/utils tree
 
     Supports recursive addition/deletion of nodes
 

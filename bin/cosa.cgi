@@ -3,7 +3,7 @@
 # Chess Opening Study Aid
 
 # $COSA is set in cosa-ui
-. $COSA/lib/utils
+. $COSA/lib/utils misc tree
 . $COSA/cfg/cfg.sh
 . $COSA/lib/web.sh
 

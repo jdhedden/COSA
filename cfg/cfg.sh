@@ -10,11 +10,6 @@ __NOTES__
 
 COSA_VERSION='0.8.4'
 
-UTILS_MISC=true
-. $COSA/lib/utils_misc
-UTILS_TREE=true
-. $COSA/lib/utils_tree
-
 . $COSA/lib/db.sh
 . $COSA/lib/move.sh
 . $COSA/lib/view.sh

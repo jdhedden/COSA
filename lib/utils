@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 <<'__USAGE__'
 
@@ -67,7 +67,7 @@ fi
 mkdir -p $(dirname "${UTIL[LOG]}")
 UTIL[_LOG]='if [[ ! -s ${UTIL[LOG]} ]]; then rm -f ${UTIL[LOG]}; fi'
 
-log_all() { exec &> >(tee -i ${UTIL[LOG]}); }
+log_all () { exec &> >(tee -i ${UTIL[LOG]}); }
 
 # Temp file
 : ${UTIL[TMP]:=$COSA/tmp/${UTIL[BASE]}_$$.tmp}
@@ -83,7 +83,7 @@ trap "${UTIL[_TMP]}; ${UTIL[_LOG]}" EXIT
 
 
 # Usage
-usage() { echo -e "\nUsage: ${UTIL[USAGE]}\n"; exit 2; }
+usage () { echo -e "\nUsage: ${UTIL[USAGE]}\n"; exit 2; }
 
 
 # Include libraries
@@ -136,36 +136,36 @@ else
 fi
 
 # Echo commands
-e_attr() {
+e_attr () {
     attr=$1
     shift
     printf "${AES[$attr]}%s${AES[rst]}\n" "$*"
 }
-e_hdr() {
+e_hdr () {
     printf "\n${AES[mag]}>>> ${AES[inv]}${AES[cyn]}%s${AES[rst]} ${AES[mag]}<<<${AES[rst]}\n" "$*"
 }
-e_info() {
+e_info () {
     e_attr yel "$*"
 }
-e_ok() {
+e_ok () {
     printf "${AES[grn]}+ %s${AES[rst]}\n" "$*"
 }
-e_done() {
+e_done () {
     e_ok 'Done - okay'
 }
-e_err() {
+e_err () {
     printf "${AES[red]}${AES[bld]}!! %s${AES[rst]}\n" "$*"
 }
-e_warn() {
+e_warn () {
     printf "${AES[orn]}=> %s${AES[rst]}\n" "$*"
 }
-e_ul() {
+e_ul () {
     e_attr unl "$*"
 }
-e_note() {
+e_note () {
     printf "${AES[unl]}${AES[bld]}${AES[blu]}Note${AES[rst]}${AES[blu]}:  ${AES[rst]}%s\n" "$*"
 }
-e_ts() {
+e_ts () {
     if [[ $1 == '-0' ]]; then
         shift
         printf "[%(%F)T %(%T)T] %s\n" -1 -1 "$*"
@@ -173,11 +173,11 @@ e_ts() {
         printf "${AES[cyn]}[${AES[yel]}%(%F)T ${AES[grn]}%(%T)T${AES[cyn]}]${AES[rst]} %s\n" -1 -1 "$*"
     fi
 }
-e_log() {
+e_log () {
     printf '[%(%F %T)T] %s\n' -1 "$*"
 }
 UTIL[DEBUG]=false
-e_debug() {
+e_debug () {
     # Turn on with 'UTIL[DEBUG]=true' in script
     ${UTIL[DEBUG]} && printf '[%.9s %5d %-.10s %4d] %s\n' $(/bin/date '+%M:%S.%N') $BASHPID ${FUNCNAME[1]} ${BASH_LINENO[0]} "$*"
 }

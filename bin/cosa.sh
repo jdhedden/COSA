@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # Chess Opening Study Aid
 
@@ -10,7 +10,7 @@ export COSA=$(realpath $(dirname $0)/..)
 UTIL[USAGE]="${UTIL[SELF]} [--help|--version] [--debug] [database]"
 
 
-commands() {
+commands () {
     cat <<__HELP__
 ${AES[unl]}Commands${AES[rst]}
 <CR>                Next move
@@ -68,13 +68,13 @@ __HELP__
 }
 
 
-pop_hist() {
+pop_hist () {
     # USAGE: pop_hist hist line turn side
 
-    eval "local -n ph_h=$1"
-    eval "local -n ph_l=$2"
-    eval "local -n ph_t=$3"
-    eval "local -n ph_s=$4"
+    local -n ph_h=$1
+    local -n ph_l=$2
+    local -n ph_t=$3
+    local -n ph_s=$4
 
     local ph_i=$(( ${#ph_h[@]} - 1 ))
     if [[ $ph_i -lt 0 ]]; then
@@ -91,7 +91,7 @@ pop_hist() {
 }
 
 
-main() {
+main () {
     local -A DB DB2 board move
     local -a args hist ary
     local line turn=1 side=w

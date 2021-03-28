@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # Chess Opening Study Aid
 
@@ -19,7 +19,7 @@ __URL__
 __HERE__
 
 
-show_dbs() {
+show_dbs () {
     local -a dbs
     cd_list dbs
 
@@ -55,7 +55,7 @@ __WEB__
 }
 
 
-show_lines() {
+show_lines () {
     local -A lns
     cd_list_lines DB lns
 
@@ -90,7 +90,7 @@ __WEB__
 }
 
 
-new_line() {
+new_line () {
     # TODO
     cw_head
     echo 'Empty database'
@@ -99,7 +99,7 @@ new_line() {
 }
 
 
-show_board() {
+show_board () {
     # Output page
     cw_head "${GBL[DB_NAME]}"
     local cmt='&nbsp;'
@@ -191,7 +191,7 @@ show_board() {
 }
 
 
-main() {
+main () {
     local tmp
     for tmp in ${QUERY_STRING//&/ }; do
         eval "$tmp"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # ANSI escape sequences
 declare -A X=(
@@ -12,7 +12,7 @@ declare -A X=(
     [a]=$(make_es b)                # Alt move to main line
 )
 
-cv_gen_board() {
+cv_gen_board () {
     # USAGE: cv_gen_board [-a|-t|-h] [-r] "$fen"|board varname
 
     local gb_fmt='-a'
@@ -41,10 +41,11 @@ cv_gen_board() {
         local -a gb_ff=($1)
         gb_fen=${gb_ff[0]}
     else
-        eval "local -n gb_bb=$1"
+        local -n gb_bb=$1
         gb_fen=${gb_bb[board]}
     fi
-    eval "local -n gb_brd=$2"; gb_brd=()
+    local -n gb_brd=$2
+    gb_brd=()
 
     # 64 squares
     local -a gb_sq_fmt
@@ -150,7 +151,7 @@ cv_gen_board() {
 }
 
 
-cv_moves_and_board() {
+cv_moves_and_board () {
     #local mb_db=$1
     #local mb_l=$2
     #local mb_t=$3
@@ -352,7 +353,7 @@ cv_moves_and_board() {
 }
 
 
-cv_window() {
+cv_window () {
     # USAGE: cv_window [--readonly] "$file" $l.$t.$s
 
     local nw_ro=
@@ -377,11 +378,11 @@ cv_window() {
 }
 
 
-cv_enumerate_moves() {
+cv_enumerate_moves () {
     # USAGE: cv_enumerate_moves moves output [$turn [$side]]
 
-    eval "local -n em_moves=$1"
-    eval "local -n em_out=$2"
+    local -n em_moves=$1
+    local -n em_out=$2
     #local em_start=$3 [e.g., 5 or 5w or 5b]
     #local em_side=$4  [e.g., w or b]
     local em_t=1 em_s=w em_m

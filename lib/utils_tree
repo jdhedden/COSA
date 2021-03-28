@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 <<'__USAGE__'
 
@@ -52,31 +52,31 @@
 __USAGE__
 
 
-tree_init() {
-    eval "local -n ti_t=$1"
+tree_init () {
+    local -n ti_t=$1
     ti_t=([_]='')
 }
 
 
-__path() {
-    eval "local -n __n=$1"
+__path () {
+    local -n __n=$1
 
     if [[ -z $__n ]]; then
-        __n='_'      # root
+        __n='_'         # root
     elif [[ $__n != '_' && ! $__n =~ ^_\. ]]; then
-        __n="_.$__n"  # add root prefix
+        __n="_.$__n"    # add root prefix
     fi
 }
 
 
-node_exists() {
+node_exists () {
     local _n=$2; __path _n  # node
     [[ -v "$1[$_n]" ]]
 }
 
 
-node_is_null() {
-    eval "local -n ix_t=$1"   # tree
+node_is_null () {
+    local -n ix_t=$1        # tree
     local _n=$2; __path _n  # node
     if [[ ! -v "$1[$_n]" ]]; then
         e_warn "Node '$_n' does not exist in '$1'" >&2
@@ -87,8 +87,8 @@ node_is_null() {
 }
 
 
-node_is_node() {
-    eval "local -n in_t=$1"   # tree
+node_is_node () {
+    local -n in_t=$1        # tree
     local _n=$2; __path _n  # node
     if [[ ! -v "$1[$_n]" ]]; then
         e_warn "Node '$_n' does not exist in '$1'" >&2
@@ -99,8 +99,8 @@ node_is_node() {
 }
 
 
-node_is_leaf() {
-    eval "local -n il_t=$1"   # tree
+node_is_leaf () {
+    local -n il_t=$1        # tree
     local _n=$2; __path _n  # node
     if [[ ! -v "$1[$_n]" ]]; then
         e_warn "Node '$_n' does not exist in '$1'" >&2
@@ -111,7 +111,7 @@ node_is_leaf() {
 }
 
 
-node_add() {
+node_add () {
     # Usage:  node_add tree node subnode
     #    or:  node_add tree node.subnode
 
@@ -121,7 +121,7 @@ node_add() {
         quiet=true
     fi
 
-    eval "local -n na_t=$1"   # tree
+    local -n na_t=$1        # tree
     local _n=$2; __path _n  # node
     local _s=$3             # subnode  (XXX - screen for '|' chars)
     if [[ -z $_s ]]; then   # Alternate (2nd) usage
@@ -158,18 +158,18 @@ node_add() {
 }
 
 
-node_get() {
+node_get () {
     local quiet=false
     if [[ $1 == -q ]]; then
         shift
         quiet=true
     fi
 
-    eval "local -n ng_t=$1"   # tree
+    local -n ng_t=$1        # tree
     local _n=$2; __path _n  # node
     local by_ref=false
     if [[ -n $3 ]]; then
-        eval "local -n ng_v=$3"
+        local -n ng_v=$3
         by_ref=true
     fi
 
@@ -211,8 +211,8 @@ node_get() {
 }
 
 
-node_set() {
-    eval "local -n ns_t=$1"   # tree
+node_set () {
+    local -n ns_t=$1        # tree
     local _n=$2; __path _n  # node
 
     # Recursively add nodes if needed
@@ -229,14 +229,14 @@ node_set() {
 }
 
 
-node_del() {
+node_del () {
     local quiet=false
     if [[ $1 == -q ]]; then
         shift
         quiet=true
     fi
 
-    eval "local -n nd_t=$1"   # tree
+    local -n nd_t=$1        # tree
     local _n=$2; __path _n  # node
     if [[ ! -v "$1[$_n]" ]]; then
         if ! $quiet; then
@@ -272,9 +272,9 @@ node_del() {
 }
 
 
-tree_copy() {
-    eval "local -n tc_t1=$1"
-    eval "local -n tc_t2=$2"
+tree_copy () {
+    local -n tc_t1=$1
+    local -n tc_t2=$2
     tc_t2=()
     local tc_k
     for tc_ii in "${!tc_t1[@]}"; do
@@ -283,8 +283,8 @@ tree_copy() {
 }
 
 
-tree_dump() {
-    eval "local -n td_t=$1"
+tree_dump () {
+    local -n td_t=$1
 
     echo "declare -A $1=("
     local td_k

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 <<'__USAGE__'
 
@@ -21,27 +21,27 @@ fi
 __EX__
 
 # Get yes/no response
-ask_confirm() {
+ask_confirm () {
     printf "\n${AES[yel]}$*${AES[rst]}"
     read -p " (y/N) "
     printf "\n"
 }
 
 # Test whether the result of an 'ask' is a confirmation
-is_confirmed() { [[ $REPLY =~ ^[Yy] ]]; }
+is_confirmed () { [[ $REPLY =~ ^[Yy] ]]; }
 
 # ---
 
-sorted() { printf '%s\n' "$@" | sort; }
+sorted () { printf '%s\n' "$@" | sort; }
 
 # ---
 
-part() {
+part () {
     local cmd=$1
     local delim=$2
     local item=$3
     if [[ -n $4 ]]; then
-        eval "local -n _var=$4"
+        local -n _var=$4
     else
         local _var
     fi
@@ -76,17 +76,17 @@ part() {
 
 # ---
 
-copy_hash() {
-    eval "local -n fm=$1 to=$2"
+copy_hash () {
+    local -n fm=$1 to=$2
     local idx
-    to=()
+    to= ()
     for idx in "${!fm[@]}"; do
         to[$idx]=${fm[$idx]}
     done
 }
 
 clear_hash () {
-    eval "local -n _ch_h=$1"
+    local -n _ch_h=$1
     local _ch_x
     for _ch_x in "${!_ch_h[@]}"; do
         unset _ch_h[$_ch_x]
@@ -96,7 +96,7 @@ clear_hash () {
 # ---
 
 # Make ANSI escape sequences
-make_es() {
+make_es () {
     local -A _es=(
         [0]='0'  # zero = reset
 

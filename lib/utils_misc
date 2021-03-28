@@ -9,14 +9,13 @@ __USAGE__
 
 
 <<'__EX__'
-# Example usage:
 
-ask_confirm "Do you want to print a success message?"
-if is_confirmed; then
-  e_ok "Here is a success message"
-else
-  e_err "You did not ask for a success message"
-fi
+    ask_confirm "Do you want to print a success message?"
+    if is_confirmed; then
+    e_ok "Here is a success message"
+    else
+    e_err "You did not ask for a success message"
+    fi
 
 __EX__
 
@@ -32,44 +31,58 @@ is_confirmed () { [[ $REPLY =~ ^[Yy] ]]; }
 
 # ---
 
-sorted () { printf '%s\n' "$@" | sort; }
+<<'__EX__'
+
+    IFS=$'\n'    # Not needed if keys/items have no spaces
+    for key in $(sorted "${!assoc[@]}"); do
+        echo "assoc['$key']='${assoc[$key]}'"
+    done
+    IFS=$' \t\n'
+
+    As such, can't handle items containing newlines
+
+__EX__
+
+sorted () {
+    printf '%s\n' "$@" | sort
+}
 
 # ---
 
 part () {
-    local cmd=$1
-    local delim=$2
-    local item=$3
+    local p_cmd=$1
+    local p_delim=$2
+    local p_item=$3
     if [[ -n $4 ]]; then
-        local -n _var=$4
+        local -n p_var=$4
     else
-        local _var
+        local p_var
     fi
 
     # Usage
-    local usage="Usage:
+    local p_usage="Usage:
     part +1 'delim' "string" [varname]  # first part
     part +$ 'delim' "string" [varname]  # last part
     part -1 'delim' "string" [varname]  # first part removed
     part -$ 'delim' "string" [varname]  # last part removed"
 
     if [[ -z $1 || -z $2 || -z $3 ]]; then
-        e_err 'Missing arg(s)' >&2; e_info "$usage" >&2
-        return
+        e_err 'Missing arg(s)' >&2; e_info "$p_usage" >&2
+        return 1
     fi
 
-    case $cmd in
-        +1) _var=${item%%${delim}*} ;;
-        +$) _var=${item##*${delim}} ;;
-        -1) _var=${item#*${delim}}  ;;
-        -$) _var=${item%${delim}*}  ;;
-        *) e_err 'Missing arg(s)' >&2 ; e_info "$usage" >&2
+    case $p_cmd in
+        +1) p_var=${p_item%%${p_delim}*} ;;
+        +$) p_var=${p_item##*${p_delim}} ;;
+        -1) p_var=${p_item#*${p_delim}}  ;;
+        -$) p_var=${p_item%${p_delim}*}  ;;
+        *) e_err 'Missing arg(s)' >&2 ; e_info "$p_usage" >&2
             return 1
             ;;
     esac
 
     if [[ -z $4 ]]; then
-        echo "$_var"
+        echo "$p_var"
     fi
     return 0
 }
@@ -77,11 +90,11 @@ part () {
 # ---
 
 copy_hash () {
-    local -n fm=$1 to=$2
-    local idx
-    to= ()
-    for idx in "${!fm[@]}"; do
-        to[$idx]=${fm[$idx]}
+    local -n ch_fm=$1 ch_to=$2
+    ch_to=()
+    local ch_idx
+    for ch_idx in "${!ch_fm[@]}"; do
+        ch_to[$ch_idx]=${ch_fm[$ch_idx]}
     done
 }
 
@@ -97,7 +110,7 @@ clear_hash () {
 
 # Make ANSI escape sequences
 make_es () {
-    local -A _es=(
+    local -A es_es=(
         [0]='0'  # zero = reset
 
         [b]='1'
@@ -116,15 +129,15 @@ make_es () {
         [o]='38;5;202' # orange
     )
 
-    local _ii _seq
-    for _ii in "$@"; do
-        if [[ -z ${_es[$_ii]} ]]; then
-            _seq+="$_ii;"
+    local es_ii es_seq
+    for es_ii in "$@"; do
+        if [[ -z ${es_es[$es_ii]} ]]; then
+            es_seq+="$es_ii;"
         else
-            _seq+="${_es[$_ii]};"
+            es_seq+="${es__es[$es_ii]};"
         fi
     done
-    echo -n "[${_seq:0:-1}m"
+    echo -n "[${es_seq:0:-1}m"
 }
 
 # EOF

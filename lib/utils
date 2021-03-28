@@ -56,9 +56,8 @@ else
     UTIL[DIR]=$PWD
 fi
 
-# Config file
+# Config file -- Note: Loaded at EOF
 : ${UTIL[CFG]:=${UTIL[DIR]}/${UTIL[BASE]}.cfg}
-# Note: Loaded at EOF
 
 # Log file
 if [[ -z ${UTIL[LOG]} ]]; then
@@ -67,7 +66,7 @@ fi
 mkdir -p $(dirname "${UTIL[LOG]}")
 UTIL[_LOG]='if [[ ! -s ${UTIL[LOG]} ]]; then rm -f ${UTIL[LOG]}; fi'
 
-log_all () { exec &> >(tee -i ${UTIL[LOG]}); }
+log_all () { exec &> >(tee -ai ${UTIL[LOG]}); }
 
 # Temp file
 : ${UTIL[TMP]:=$COSA/tmp/${UTIL[BASE]}_$$.tmp}
@@ -87,8 +86,7 @@ usage () { echo -e "\nUsage: ${UTIL[USAGE]}\n"; exit 2; }
 
 
 # Include libraries
-# Include libraries
-while [[ $# -gt 0 ]]; do
+while [[ -n $1 ]]; do
     if ! source $COSA/lib/utils_${1/utils_/} 2>/dev/null; then
         echo "ERROR: Unknown library 'utils_${1/utils_/}'"
         exit 1

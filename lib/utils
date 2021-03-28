@@ -10,7 +10,7 @@
     )
 
     # Source this file's functionality
-    . $COSA/lib/utils [misc tree]
+    . $COSA/lib/utils [misc tree || '']
 
     # Capture all output to log
     log_all

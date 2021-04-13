@@ -173,7 +173,6 @@ node_get () {
         by_ref=true
     fi
 
-
     if [[ ! -v "$1[$_n]" ]]; then
         if ! $quiet; then
             e_warn "Node '$_n' does not exist in '$1'" >&2

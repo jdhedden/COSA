@@ -10,7 +10,7 @@
     )
 
     # Source this file's functionality
-    . $COSA/lib/utils [misc tree || '']
+    . $COSA/lib/utils [misc tree | '']
 
     # Capture all output to log
     log_all
@@ -60,9 +60,7 @@ fi
 : ${UTIL[CFG]:=${UTIL[DIR]}/${UTIL[BASE]}.cfg}
 
 # Log file
-if [[ -z ${UTIL[LOG]} ]]; then
-    printf -v UTIL[LOG] '%s/log/%s_%(%Y%m%d_%H%M%S)T.log' $COSA ${UTIL[BASE]} -1
-fi
+[[ -n ${UTIL[LOG]} ]] || printf -v UTIL[LOG] '%s/log/%s_%(%Y%m%d_%H%M%S)T.log' $COSA ${UTIL[BASE]}
 mkdir -p $(dirname "${UTIL[LOG]}")
 UTIL[_LOG]='if [[ ! -s ${UTIL[LOG]} ]]; then rm -f ${UTIL[LOG]}; fi'
 
@@ -116,27 +114,13 @@ if [[ -t 1 ]]; then
         [inv]='[7m'
     )
 else
-    AES=(
-        [red]=''
-        [grn]=''
-        [yel]=''
-        [blu]=''
-        [mag]=''
-        [cyn]=''
-        [orn]=''
-
-        [rst]=''
-        [bld]=''
-        [ita]=''
-        [unl]=''
-        [inv]=''
-    )
+    AES=( [red]='' [grn]='' [yel]='' [blu]='' [mag]='' [cyn]='' [orn]=''
+          [rst]='' [bld]='' [ita]='' [unl]='' [inv]='' )
 fi
 
 # Echo commands
 e_attr () {
-    attr=$1
-    shift
+    attr=$1; shift
     printf "${AES[$attr]}%s${AES[rst]}\n" "$*"
 }
 e_hdr () {

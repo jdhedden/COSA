@@ -12,18 +12,18 @@ __USAGE__
 
     ask_confirm "Do you want to print a success message?"
     if is_confirmed; then
-    e_ok "Here is a success message"
+        e_ok "Here is a success message"
     else
-    e_err "You did not ask for a success message"
+        e_err "You did not ask for a success message"
     fi
 
 __EX__
 
 # Get yes/no response
 ask_confirm () {
-    printf "\n${AES[yel]}$*${AES[rst]}"
+    echo -en "\n${AES[yel]}$*${AES[rst]}"
     read -p " (y/N) "
-    printf "\n"
+    echo
 }
 
 # Test whether the result of an 'ask' is a confirmation
@@ -33,13 +33,16 @@ is_confirmed () { [[ $REPLY =~ ^[Yy] ]]; }
 
 <<'__EX__'
 
-    IFS=$'\n'    # Not needed if keys/items have no spaces
+    declare -A assoc=([$'x\ty z']='foo bar baz'
+                      [$'a b\tc']='1 2 3'
+                      [$'i j k']='-1 -1 -1')
+
+    IFS=$'\n'   # Needed if items have spaces and/or tabs
+                # Can't handle keys/items containing newlines
     for key in $(sorted "${!assoc[@]}"); do
         echo "assoc['$key']='${assoc[$key]}'"
     done
     IFS=$' \t\n'
-
-    As such, can't handle items containing newlines
 
 __EX__
 
@@ -50,9 +53,7 @@ sorted () {
 # ---
 
 part () {
-    local p_cmd=$1
-    local p_delim=$2
-    local p_item=$3
+    local p_cmd=$1 p_delim=$2 p_item=$3
     if [[ -n $4 ]]; then
         local -n p_var=$4
     else
@@ -98,6 +99,7 @@ copy_hash () {
     done
 }
 
+<<'__UNUSED__'
 clear_hash () {
     local -n _ch_h=$1
     local _ch_x
@@ -105,6 +107,7 @@ clear_hash () {
         unset _ch_h[$_ch_x]
     done
 }
+__UNUSED__
 
 # ---
 

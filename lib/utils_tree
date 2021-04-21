@@ -259,7 +259,7 @@ node_del () {
     fi
 
     # Delete node and its reference in parent
-    unset nd_t[$_n]
+    unset "nd_t[$_n]"
     _s=${_n##*.}
     _n=${_n%.*}
     if [[ ${nd_t[${_n}]} =~ \|$_s$ ]]; then

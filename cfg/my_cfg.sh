@@ -18,7 +18,7 @@ FANCY_BOARD=true
 #ENG[ENG]=$HOME/games/stockfish/stockfish
 
 # If you don't have Stockfish
-#unset ENG[ENG]
+#unset 'ENG[ENG]'
 
 
 # For 'Open line in new window' command...

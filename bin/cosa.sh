@@ -86,7 +86,7 @@ pop_hist () {
     line=${ph_a[0]}
     turn=${ph_a[1]}
     side=${ph_a[2]}
-    unset ph_h[$ph_i]
+    unset "ph_h[$ph_i]"
     return 0
 }
 
@@ -189,7 +189,7 @@ main () {
                     if [[ $line == ${ary[0]} ]]; then
                         turn=${ary[1]}  # Same line
                         side=${ary[2]}
-                        unset hist[$tmp]
+                        unset "hist[$tmp]"
                     else
                         rotate=false
                     fi

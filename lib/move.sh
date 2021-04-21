@@ -550,7 +550,7 @@ cm_move () {
             # En passant capture
             mp_y="${mp_mv[dest]:0:1}${mp_mv[orig]:1:1}"
             mp_p=${mp_brd[$mp_y]}
-            unset mp_brd[$mp_y]
+            unset "mp_brd[$mp_y]"
             mp_brd[$mp_p]=${mp_brd[$mp_p]/$mp_y/}
         elif [[ -n ${mp_mv[xture]} ]]; then
             mp_p=${mp_brd[${mp_mv[dest]}]}
@@ -559,7 +559,7 @@ cm_move () {
 
         # Set en passant status
         mp_brd[enpass]=${mp_brd[_enpass]}
-        unset mp_brd[_enpass]
+        unset 'mp_brd[_enpass]'
 
         # Move pawn
         mp_brd[${mp_pcs[P]}]=${mp_brd[${mp_pcs[P]}]/${mp_mv[orig]}/${mp_mv[dest]}}
@@ -821,7 +821,7 @@ cm_move_eng () {
         fi
         if cm_move $1 $me_mv; then
             me_alg=$me_mv
-            unset me_brd[err]
+            unset 'me_brd[err]'
             return 0
 
         elif [[ ${me_brd[err]} =~ ^Missing\ check ]]; then

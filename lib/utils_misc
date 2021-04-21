@@ -104,7 +104,7 @@ clear_hash () {
     local -n _ch_h=$1
     local _ch_x
     for _ch_x in "${!_ch_h[@]}"; do
-        unset _ch_h[$_ch_x]
+        unset "_ch_h[$_ch_x]"
     done
 }
 __UNUSED__

@@ -643,14 +643,14 @@ cd_orphan () {
         for ol_ii in "${!ol_db[@]}"; do
             if [[ $ol_ii =~ ^_\.([0-9]+)\.[0-9]+\.(b|w)\.a\..+$ ]]; then
                 if [[ -n ${ol_mn[${BASH_REMATCH[1]}]} ]]; then
-                    unset ol_al[${ol_db[$ol_ii]}]
+                    unset "ol_al[${ol_db[$ol_ii]}]"
                 fi
             fi
         done
         # Mark one of the remaining alt lines as main
         for ol_ii in "${!ol_al[@]}"; do
             node_set $1 ${ol_al[$ol_ii]}.m main
-            unset ol_al[$ol_ii]
+            unset "ol_al[$ol_ii]"
         done
     done
 }

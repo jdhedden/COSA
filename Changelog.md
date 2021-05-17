@@ -1,5 +1,9 @@
 #### Changelog
 
+* Version 0.9.0 - 2021-05-16
+    * Rework of utils
+    * Remove unnecessary evals
+
 * Version 0.8.4 - 2021-01-28
     * Fix check for Stockfish engine
 

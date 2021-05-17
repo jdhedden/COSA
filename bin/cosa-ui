@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-# USAGE:  cosa-ui [--debug] [--start|--stop]
+# USAGE:  cosa-ui [--debug] [--cfg|--start|--stop]
 
 if ! which busybox >/dev/null 2>&1; then
     echo 'BusyBox not found'
@@ -29,11 +29,16 @@ export COSA=$(realpath $(dirname $0)/..)
 
 # Generate HTTP server config file
 CFG=$COSA/cfg/httpd.conf
-cat >$CFG <<__CFG__
+if [[ ! -f $CFG ]]; then
+    cat >$CFG <<__CFG__
 H:$COSA/bin
 I:cosa.cgi
 *.cgi:$(which bash)
 __CFG__
+fi
+if [[ $1 =~ cfg ]]; then
+    exit 0
+fi
 
 # Start HTTPD
 killall busybox 2>/dev/null
@@ -50,7 +55,7 @@ if which xdg-open >/dev/null 2>&1; then
 elif which cygstart >/dev/null 2>&1; then
     cygstart http://localhost:$PORT/cosa.cgi
 else
-    echo "Open http://127.0.0.1:$PORT/cosa.cgi in web browser"
+    echo -e "Open in web browser:\n\thttp://127.0.0.1:$PORT/cosa.cgi"
 fi
 exit 0
 

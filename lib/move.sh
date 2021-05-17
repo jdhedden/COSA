@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 declare -A F2N=([a]=1 [b]=2 [c]=3 [d]=4 [e]=5 [f]=6 [g]=7 [h]=8)
 declare -a N2F=('' a b c d e f g h)
@@ -8,10 +8,10 @@ declare -A SIDE=([w]=White [b]=Black)
 declare START_FEN='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 
-cm_is_check() {
+cm_is_check () {
     # USAGE: cm_is_check BOARD [--other_side]
 
-    eval "local -n ic_brd=$1"
+    local -n ic_brd=$1
     local ic_s
     if [[ $2 == '--other_side' ]]; then
         ic_s=$(echo ${ic_brd[side]} | tr bw wb)
@@ -141,7 +141,7 @@ cm_is_check() {
 }
 
 
-cm_parse_move() {
+cm_parse_move () {
     # USAGE: cm_parse_move MOVE $move
 
     # move=(
@@ -159,7 +159,7 @@ cm_parse_move() {
     #   [anno]      Annotation marks (!, ?, etc.)
     # )
 
-    eval "local -n pm_mv=$1"
+    local -n pm_mv=$1
     pm_mv=([move]=$2)
 
     # Support case-insensitive moves
@@ -251,10 +251,10 @@ cm_parse_move() {
 }
 
 
-cm_move() {
+cm_move () {
     # USAGE: cm_move BOARD $move
 
-    eval "local -n mp_brd=$1"
+    local -n mp_brd=$1
     local -A mp_tbrd  # Temp board
 
     local -A mp_mv
@@ -550,7 +550,7 @@ cm_move() {
             # En passant capture
             mp_y="${mp_mv[dest]:0:1}${mp_mv[orig]:1:1}"
             mp_p=${mp_brd[$mp_y]}
-            unset mp_brd[$mp_y]
+            unset "mp_brd[$mp_y]"
             mp_brd[$mp_p]=${mp_brd[$mp_p]/$mp_y/}
         elif [[ -n ${mp_mv[xture]} ]]; then
             mp_p=${mp_brd[${mp_mv[dest]}]}
@@ -559,7 +559,7 @@ cm_move() {
 
         # Set en passant status
         mp_brd[enpass]=${mp_brd[_enpass]}
-        unset mp_brd[_enpass]
+        unset 'mp_brd[_enpass]'
 
         # Move pawn
         mp_brd[${mp_pcs[P]}]=${mp_brd[${mp_pcs[P]}]/${mp_mv[orig]}/${mp_mv[dest]}}
@@ -737,12 +737,12 @@ cm_move() {
 }
 
 
-cm_move_eng() {
+cm_move_eng () {
     # USAGE: cm_move_eng BOARD $move result
 
-    eval "local -n me_brd=$1"
+    local -n me_brd=$1
     local me_in=$2 me_mv
-    eval "local -n me_alg=$3"
+    local -n me_alg=$3
 
     local me_fm=${me_in:0:2}
     local me_to=${me_in:2:2}
@@ -821,7 +821,7 @@ cm_move_eng() {
         fi
         if cm_move $1 $me_mv; then
             me_alg=$me_mv
-            unset me_brd[err]
+            unset 'me_brd[err]'
             return 0
 
         elif [[ ${me_brd[err]} =~ ^Missing\ check ]]; then
@@ -836,7 +836,7 @@ cm_move_eng() {
 }
 
 
-cm_next() {
+cm_next () {
     # USAGE: cm_next [-f] [-b] DB $line turn side
 
     local nm_fwd=true   # forward
@@ -852,8 +852,8 @@ cm_next() {
 
     #local nm_db=$1
     #local nm_l=$2
-    eval "local -n nm_t=$3"
-    eval "local -n nm_s=$4"
+    local -n nm_t=$3
+    local -n nm_s=$4
 
     if $nm_fwd; then
         local nm_tt=$nm_t nm_ss=$nm_s
@@ -883,7 +883,7 @@ cm_next() {
 }
 
 
-cm_is_last() {
+cm_is_last () {
     # USAGE: cm_is_last DB $line $turn $side
 
     #local il_db=$1
@@ -895,13 +895,13 @@ cm_is_last() {
 }
 
 
-cm_last() {
+cm_last () {
     # USAGE: cm_last DB $line turn side
 
     #local lm_db=$1
     #local lm_l=$2
-    eval "local -n lm_t=$3"
-    eval "local -n lm_s=$4"
+    local -n lm_t=$3
+    local -n lm_s=$4
 
     local -a lm_turns
     node_get $1 $2 lm_turns
@@ -917,12 +917,12 @@ cm_last() {
 }
 
 
-cm_set_board() {
+cm_set_board () {
     # USAGE: cm_set_board BOARD ["$fen"]
-    eval "local -n sb_brd=$1"
+    local -n sb_brd=$1
     local -a sb_fen=(${2:-$START_FEN})
 
-    sb_brd=()
+    sb_brd= ()
     sb_brd[fen]="${2:-$START_FEN}"
     sb_brd[board]=${sb_fen[0]}
     sb_brd[side]=${sb_fen[1]}
@@ -951,9 +951,9 @@ cm_set_board() {
 }
 
 
-cm_dump_move() {
+cm_dump_move () {
     # USAGE: cm_dump_move move
-    eval "local -n dm_mv=$1"
+    local -n dm_mv=$1
 
     echo
     local key
@@ -963,9 +963,9 @@ cm_dump_move() {
     echo
 }
 
-cm_dump_board() {
+cm_dump_board () {
     # USAGE: cm_dump_move board
-    eval "local -n db_brd=$1"
+    local -n db_brd=$1
 
     echo
     local key

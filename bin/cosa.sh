@@ -1,16 +1,16 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # Chess Opening Study Aid
 
 export COSA=$(realpath $(dirname $0)/..)
-. $COSA/lib/utils
+. $COSA/lib/utils misc tree
 . $COSA/cfg/cfg.sh
 
 
 UTIL[USAGE]="${UTIL[SELF]} [--help|--version] [--debug] [database]"
 
 
-commands() {
+commands () {
     cat <<__HELP__
 ${AES[unl]}Commands${AES[rst]}
 <CR>                Next move
@@ -68,13 +68,13 @@ __HELP__
 }
 
 
-pop_hist() {
+pop_hist () {
     # USAGE: pop_hist hist line turn side
 
-    eval "local -n ph_h=$1"
-    eval "local -n ph_l=$2"
-    eval "local -n ph_t=$3"
-    eval "local -n ph_s=$4"
+    local -n ph_h=$1
+    local -n ph_l=$2
+    local -n ph_t=$3
+    local -n ph_s=$4
 
     local ph_i=$(( ${#ph_h[@]} - 1 ))
     if [[ $ph_i -lt 0 ]]; then
@@ -86,12 +86,12 @@ pop_hist() {
     line=${ph_a[0]}
     turn=${ph_a[1]}
     side=${ph_a[2]}
-    unset ph_h[$ph_i]
+    unset "ph_h[$ph_i]"
     return 0
 }
 
 
-main() {
+main () {
     local -A DB DB2 board move
     local -a args hist ary
     local line turn=1 side=w
@@ -189,7 +189,7 @@ main() {
                     if [[ $line == ${ary[0]} ]]; then
                         turn=${ary[1]}  # Same line
                         side=${ary[2]}
-                        unset hist[$tmp]
+                        unset "hist[$tmp]"
                     else
                         rotate=false
                     fi
@@ -405,7 +405,7 @@ main() {
                 if ! node_get -q DB $line.$turn.$side.a.${args[1]} line; then
                     line=$cur_line
                 fi
-                cv_window ${GBL[DB_FILE]} $line.$turn.$side
+                cv_window ${GBL[DB_FILE]} --readonly $line.$turn.$side
                 line=$cur_line
                 ;;
             CLEAN)
@@ -503,7 +503,7 @@ while [[ -n $1 ]]; do
             GBL[START]=$2
             shift 2
             ;;
-        ?(-)-w*)
+        ?(-)-r*)
             GBL[READONLY]=true
             shift
             ;;

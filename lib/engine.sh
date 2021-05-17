@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/bash
 
-ce_params() {
+ce_params () {
     # USAGE: de_params
     local ep_prm=(Depth Lines Threads Hash Contempt)
 
@@ -35,7 +35,7 @@ Which paramater? '
 }
 
 
-ce_run() {
+ce_run () {
     # USAGE: ce_run "$fen" results
 
     # Returns:
@@ -44,7 +44,7 @@ ce_run() {
     #   results[err]
 
     #local rn_fen=$1
-    eval "local -n rn_res=$2"
+    local -n rn_res=$2
 
     local ii
 
@@ -175,7 +175,7 @@ __PARAMS__
 }
 
 
-ce_engine() {
+ce_engine () {
     # USAGE: de_params DB $line $turn $side
 
     #local en_db=$1

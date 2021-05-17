@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/bash
 
-cd_list() {
-    eval "local -n ld_dbs=$1"
+cd_list () {
+    local -n ld_dbs=$1
     #local ld_f=$2
 
     ld_dbs=()
@@ -22,8 +22,8 @@ cd_list() {
 }
 
 
-cd_choose() {
-    eval "local -n cd_f=$1"
+cd_choose () {
+    local -n cd_f=$1
 
     if [[ -n $cd_f && -f $COSA/dat/$cd_f.dat ]]; then
         cd_f=$COSA/dat/$cd_f.dat
@@ -66,14 +66,14 @@ Which opening DB? '
 }
 
 
-cd_load() {
+cd_load () {
     # USAGE: cd_load DB [file]
-    eval "local -n ld_db=$1"
-    eval "local -n ld_f=$2"
+    local -n ld_db=$1
+    local -n ld_f=$2
     if [[ -z $3 ]]; then
         local ld_u
     else
-        eval "local -n ld_u=$3"
+        local -n ld_u=$3
     fi
 
     local ii
@@ -96,8 +96,8 @@ cd_load() {
 }
 
 
-cd_delete() {
-    eval "local -n rm_f=$1"
+cd_delete () {
+    local -n rm_f=$1
 
     if cd_choose $1; then
         rm -f $rm_f
@@ -107,7 +107,7 @@ cd_delete() {
 }
 
 
-cd_save() {
+cd_save () {
     # USAGE: cd_save DB [$file]
     #local sd_db=$1
     local sd_f=$(realpath $2)
@@ -121,7 +121,7 @@ cd_save() {
         mv "$sd_f" "$COSA/dat/_archive/${sd_n}_$(date '+%Y%m%d_%H%M%S').$sd_e"
     fi
 
-    {   echo -e '#!/bin/bash\n'
+    {   echo -e '#!/usr/bin/bash\n'
         tree_dump $1
         echo -e '\n#EOF'
     } >$sd_f
@@ -129,7 +129,7 @@ cd_save() {
 
 #####
 
-cd_fenify() {
+cd_fenify () {
     # USAGE: cd_fenify DB $line [force]
     #local fl_db=$1
     #local fl_l=$2
@@ -171,7 +171,7 @@ cd_fenify() {
     return 1
 }
 
-cd_refenify() {
+cd_refenify () {
     # USAGE: cd_refenify DB
     #local rf_db=$1
 
@@ -184,9 +184,9 @@ cd_refenify() {
 
 #####
 
-cd_list_lines() {
-    eval "local -n ll_db=$1"
-    eval "local -n ll_lns=$2"
+cd_list_lines () {
+    local -n ll_db=$1
+    local -n ll_lns=$2
 
     local ll_l ll_c
     for ll_l in $(node_get -q $1); do
@@ -199,7 +199,7 @@ cd_list_lines() {
     return 0
 }
 
-cd_choose_line() {
+cd_choose_line () {
     # USAGE: cd_choose_line [-n] DB line turn side count
 
     # Present '<New Line>' choice (detected using [[ $count -eq -1 ]])
@@ -209,11 +209,11 @@ cd_choose_line() {
         shift
     fi
 
-    eval "local -n cl_db=$1"
-    eval "local -n cl_l=$2"
-    eval "local -n cl_t=$3"
-    eval "local -n cl_s=$4"
-    eval "local -n cl_n=$5"
+    local -n cl_db=$1
+    local -n cl_l=$2
+    local -n cl_t=$3
+    local -n cl_s=$4
+    local -n cl_n=$5
 
     local -A cl_lns
     cd_list_lines $1 cl_lns
@@ -265,11 +265,11 @@ Which line? '
     return 0
 }
 
-cd_main() {
-    eval "local -n ml_db=$1"
-    eval "local -n ml_l=$2"
-    eval "local -n ml_t=$3"
-    eval "local -n ml_s=$4"
+cd_main () {
+    local -n ml_db=$1
+    local -n ml_l=$2
+    local -n ml_t=$3
+    local -n ml_s=$4
 
     local -A ml_lns
     cd_cluster $1 ml_lns
@@ -290,14 +290,14 @@ cd_main() {
 
 #####
 
-cd_get_alts() {
+cd_get_alts () {
     # USAGE: cd_get_alts DB $line $turn $move alts
 
-    eval "local -n ga_db=$1"
+    local -n ga_db=$1
     #local ga_l=$2
     #local ga_t=$3
     #local ga_s=$4
-    eval "local -n ga_a=$5"
+    local -n ga_a=$5
 
     local ga_mv ga_cnt=0
     for ga_mv in $(node_get -q $1 $2.$3.$4.a); do
@@ -310,7 +310,7 @@ cd_get_alts() {
     return 0
 }
 
-cd_copy_alts() {
+cd_copy_alts () {
     # USAGE: cd_copy_alts DB $line1 $line2 $turn $side
 
     #local _db=$1
@@ -334,7 +334,7 @@ cd_copy_alts() {
     done
 }
 
-cd_link_lines() {
+cd_link_lines () {
     # USAGE: cd_link_lines DB $line1 $line2 $turn $side
 
     #local _db=$1
@@ -363,11 +363,11 @@ cd_link_lines() {
     done
 }
 
-cd_branch_line() {
+cd_branch_line () {
     # USAGE: cd_branch_line DB line $line $turn $side "${move[@]}"
 
     #local _db=$1
-    eval "local -n bl_nl=$2"  # New line
+    local -n bl_nl=$2  # New line
     #local bl_cl=$3           # Current line ...
     #local bl_ct=$4
     #local bl_cs=$5
@@ -425,17 +425,17 @@ cd_branch_line() {
 
 #####
 
-cd_mt_line() {
+cd_mt_line () {
     # USAGE: cd_mt_line DB line
     #local mt_db=$1
-    eval "local -n mt_l=$2"
+    local -n mt_l=$2
 
     cd_next $1 _ $2
     node_set $1 $mt_l.c "Line #$mt_l"
     node_set $1 $mt_l.m main
 }
 
-cd_set_moves() {
+cd_set_moves () {
     # USAGE: cd_set_moves DB $line $turn $side "$fen" "${moves[@]}"
 
     #local sm_db=$1
@@ -480,13 +480,13 @@ cd_set_moves() {
     return 0
 }
 
-cd_add_moves() {
+cd_add_moves () {
     # USAGE: cd_add_moves DB $line turn side "${moves[@]}"
 
     #local am_db=$1
     #local am_l=$2
-    eval "local -n am_t=$3"
-    eval "local -n am_s=$4"
+    local -n am_t=$3
+    local -n am_s=$4
 
     cm_last $1 $2 am_t am_s
     local am_fen
@@ -498,17 +498,17 @@ cd_add_moves() {
     return 0
 }
 
-cd_gen_line() {
+cd_gen_line () {
     # USAGE: cd_gen_line DB line moves...
 
     #local gl_db=$1
-    eval "local -n gl_l=$2"
+    local -n gl_l=$2
 
     cd_mt_line $1 $2
     cd_set_moves $1 $gl_l 1 w '' "${@:3}"
 }
 
-cd_new_line() {
+cd_new_line () {
     # USAGE: cd_new_line DB line ["${move[@]}"]
 
     if [[ $# -le 2 ]]; then
@@ -525,7 +525,7 @@ cd_new_line() {
 
 #####
 
-cd_del_move() {
+cd_del_move () {
     # USAGE: cd_del_moves DB $line $turn $side
     #local dm_db=$1
     #local dm_l=$2
@@ -551,7 +551,7 @@ cd_del_move() {
     fi
 }
 
-cd_truncate_line() {
+cd_truncate_line () {
     # USAGE: cd_truncate_line DB $line $turn $side
     #local tl_db=$1
     #local tl_l=$2
@@ -571,7 +571,7 @@ cd_truncate_line() {
     #cd_orphan $1
 }
 
-cd_del_line() {
+cd_del_line () {
     # USAGE: cd_create_line DB $line
     #local dl_db=$1
     #local dl_l=$2
@@ -587,10 +587,10 @@ cd_del_line() {
 
 #####
 
-cd_gather_moves() {
+cd_gather_moves () {
     # USAGE: cd_gather_moves DB moves $line [$turn $side [$turn $side]]
     #local gm_db=$1
-    eval "local -n gm_mvs=$2"
+    local -n gm_mvs=$2
     #local gm_l=$3
     local gm_fm_t=${4:-1}
     local gm_fm_s=${5:-w}
@@ -613,19 +613,19 @@ cd_gather_moves() {
 
 #####
 
-cd_next() {
+cd_next () {
     # USAGE: cd_next DB $path result
     #local ni_db=$1
     #local ni_n=$2
-    eval "local -n ni_x=$3"; ni_x=1
+    local -n ni_x=$3; ni_x=1
     while node_exists $1 $2.$ni_x; do (( ni_x++ )); done
 }
 
 #####
 
-cd_orphan() {
+cd_orphan () {
     # USAGE: cd_orphan DB
-    eval "local -n ol_db=$1"
+    local -n ol_db=$1
 
     # Separate main and alternate lines
     local -A ol_mn ol_al
@@ -643,24 +643,24 @@ cd_orphan() {
         for ol_ii in "${!ol_db[@]}"; do
             if [[ $ol_ii =~ ^_\.([0-9]+)\.[0-9]+\.(b|w)\.a\..+$ ]]; then
                 if [[ -n ${ol_mn[${BASH_REMATCH[1]}]} ]]; then
-                    unset ol_al[${ol_db[$ol_ii]}]
+                    unset "ol_al[${ol_db[$ol_ii]}]"
                 fi
             fi
         done
         # Mark one of the remaining alt lines as main
         for ol_ii in "${!ol_al[@]}"; do
             node_set $1 ${ol_al[$ol_ii]}.m main
-            unset ol_al[$ol_ii]
+            unset "ol_al[$ol_ii]"
         done
     done
 }
 
 #####
 
-cd_cluster() {
+cd_cluster () {
     # USAGE: cd_cluster DB lines
-    eval "local -n lc_db=$1"
-    eval "local -n lc_lns=$2"
+    local -n lc_db=$1
+    local -n lc_lns=$2
 
     local lc_ii lc_jj lc_l1 lc_l2 lc_c1 lc_c2
 
@@ -710,10 +710,10 @@ cd_cluster() {
     done
 }
 
-cd_extract() {
+cd_extract () {
     # USAGE: cd_extract DB1 DB2 $line
-    eval "local -n ex_db1=$1"
-    eval "local -n ex_db2=$2"
+    local -n ex_db1=$1
+    local -n ex_db2=$2
     #local ex_l=$3
 
     # Create clusters of lines

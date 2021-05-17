@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 <<'__NOTES__'
 
@@ -8,12 +8,7 @@ put your configuration customizations in cfg/my_cfh.sh.
 __NOTES__
 
 
-COSA_VERSION='0.8.4'
-
-UTILS_MISC=true
-. $COSA/lib/utils_misc
-UTILS_TREE=true
-. $COSA/lib/utils_tree
+COSA_VERSION='0.9.0'
 
 . $COSA/lib/db.sh
 . $COSA/lib/move.sh

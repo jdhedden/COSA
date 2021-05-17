@@ -1,10 +1,6 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 <<'__USAGE__'
-
-    # Libraries that can be included
-    UTILS_MISC=true     # lock, ask, sorted, ...
-    UTILS_TREE=true
 
     # Script associated files (defaults shown)
     declare -A UTIL=(
@@ -14,7 +10,7 @@
     )
 
     # Source this file's functionality
-    . $COSA/lib/utils
+    . $COSA/lib/utils [misc tree | '']
 
     # Capture all output to log
     log_all
@@ -60,20 +56,15 @@ else
     UTIL[DIR]=$PWD
 fi
 
-# Config file
+# Config file -- Note: Loaded at EOF
 : ${UTIL[CFG]:=${UTIL[DIR]}/${UTIL[BASE]}.cfg}
-# Note: Loaded at EOF
 
 # Log file
-if [[ -z ${UTIL[LOG]} ]]; then
-    printf -v UTIL[LOG] '%s/log/%s_%(%Y%m%d_%H%M%S)T.log' $COSA ${UTIL[BASE]} -1
-fi
+[[ -n ${UTIL[LOG]} ]] || printf -v UTIL[LOG] '%s/log/%s_%(%Y%m%d_%H%M%S)T.log' $COSA ${UTIL[BASE]}
 mkdir -p $(dirname "${UTIL[LOG]}")
 UTIL[_LOG]='if [[ ! -s ${UTIL[LOG]} ]]; then rm -f ${UTIL[LOG]}; fi'
 
-log_all() {
-    exec &> >(tee -i ${UTIL[LOG]})
-}
+log_all () { exec &> >(tee -ai ${UTIL[LOG]}); }
 
 # Temp file
 : ${UTIL[TMP]:=$COSA/tmp/${UTIL[BASE]}_$$.tmp}
@@ -89,16 +80,17 @@ trap "${UTIL[_TMP]}; ${UTIL[_LOG]}" EXIT
 
 
 # Usage
-usage() { echo -e "\nUsage: ${UTIL[USAGE]}\n"; exit 2; }
+usage () { echo -e "\nUsage: ${UTIL[USAGE]}\n"; exit 2; }
 
 
 # Include libraries
-if [[ $UTILS_MISC == true ]]; then
-    . $COSA/lib/utils_misc
-fi
-if [[ $UTILS_TREE == true ]]; then
-    . $COSA/lib/utils_tree
-fi
+while [[ -n $1 ]]; do
+    if ! source $COSA/lib/utils_${1/utils_/} 2>/dev/null; then
+        echo "ERROR: Unknown library 'utils_${1/utils_/}'"
+        exit 1
+    fi
+    shift
+done
 
 
 # ANSI Escape Sequences
@@ -122,54 +114,40 @@ if [[ -t 1 ]]; then
         [inv]='[7m'
     )
 else
-    AES=(
-        [red]=''
-        [grn]=''
-        [yel]=''
-        [blu]=''
-        [mag]=''
-        [cyn]=''
-        [orn]=''
-
-        [rst]=''
-        [bld]=''
-        [ita]=''
-        [unl]=''
-        [inv]=''
-    )
+    AES=( [red]='' [grn]='' [yel]='' [blu]='' [mag]='' [cyn]='' [orn]=''
+          [rst]='' [bld]='' [ita]='' [unl]='' [inv]='' )
 fi
 
 # Echo commands
-e_attr() {
-    attr=$1
-    shift
+e_attr () {
+    attr=$1; shift
     printf "${AES[$attr]}%s${AES[rst]}\n" "$*"
 }
-e_hdr() {
+e_hdr () {
     printf "\n${AES[mag]}>>> ${AES[inv]}${AES[cyn]}%s${AES[rst]} ${AES[mag]}<<<${AES[rst]}\n" "$*"
 }
-e_info() {
+e_info () {
     e_attr yel "$*"
 }
-e_ok() {
+e_ok () {
     printf "${AES[grn]}+ %s${AES[rst]}\n" "$*"
 }
-e_done() {
+e_done () {
     e_ok 'Done - okay'
 }
-e_err() {
+e_err () {
     printf "${AES[red]}${AES[bld]}!! %s${AES[rst]}\n" "$*"
 }
-e_warn() {
+e_warn () {
     printf "${AES[orn]}=> %s${AES[rst]}\n" "$*"
 }
-e_ul() {
+e_ul () {
     e_attr unl "$*"
 }
-e_note() {
+e_note () {
     printf "${AES[unl]}${AES[bld]}${AES[blu]}Note${AES[rst]}${AES[blu]}:  ${AES[rst]}%s\n" "$*"
 }
-e_ts() {
+e_ts () {
     if [[ $1 == '-0' ]]; then
         shift
         printf "[%(%F)T %(%T)T] %s\n" -1 -1 "$*"
@@ -177,11 +155,11 @@ e_ts() {
         printf "${AES[cyn]}[${AES[yel]}%(%F)T ${AES[grn]}%(%T)T${AES[cyn]}]${AES[rst]} %s\n" -1 -1 "$*"
     fi
 }
-e_log() {
+e_log () {
     printf '[%(%F %T)T] %s\n' -1 "$*"
 }
 UTIL[DEBUG]=false
-e_debug() {
+e_debug () {
     # Turn on with 'UTIL[DEBUG]=true' in script
     ${UTIL[DEBUG]} && printf '[%.9s %5d %-.10s %4d] %s\n' $(/bin/date '+%M:%S.%N') $BASHPID ${FUNCNAME[1]} ${BASH_LINENO[0]} "$*"
 }

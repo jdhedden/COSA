@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # http://code2care.org/pages/chessboard-with-pieces-using-pure-html-and-css/
 
-cw_head() {
+cw_head () {
     # USAGE: cs_head title
     cat <<__CSS__
 Content-Type: text/html
@@ -50,11 +50,11 @@ a {
 __CSS__
 }
 
-cw_tail() {
+cw_tail () {
     echo -e "</body>\n</html>"
 }
 
-cw_cell() {
+cw_cell () {
     # USAGE: cw_cell_link -n -p -s 'style' -a 'attr' D L T S R 'content'
     #                                                1 2 3 4 5  6
     local cl_cell=true
@@ -89,10 +89,10 @@ cw_cell() {
 }
 
 
-cw_nav() {
+cw_nav () {
     # USAGE: cw_nav nav mvs_fmt
-    eval "local -n nv_mvs=$1"
-    eval "local -n nv_nav=$2"
+    local -n nv_mvs=$1
+    local -n nv_nav=$2
 
     # Rotate board
     if [[ -z $R ]]; then
@@ -143,9 +143,9 @@ cw_nav() {
 }
 
 
-cw_alts() {
+cw_alts () {
     # USAGE: cw_alts alts
-    eval "local -n am_a=$1"
+    local -n am_a=$1
     local -A am_aa
     local am_mv
     if cd_get_alts DB $L $T $S am_aa; then
@@ -159,10 +159,10 @@ cw_alts() {
     fi
 }
 
-cw_moves() {
+cw_moves () {
     # USAGE: cw_moves moves mvs_fmt
-    eval "local -n fm_mvs=$1"
-    eval "local -n fm_mvf=$2"
+    local -n fm_mvs=$1
+    local -n fm_mvf=$2
     fm_mvf=()
 
     # Format moves

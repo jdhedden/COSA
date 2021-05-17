@@ -89,7 +89,7 @@ cd_load () {
 
     while read; do
         if [[ $REPLY =~ (\[.+\]=.+$) ]]; then
-            ld_db${BASH_REMATCH[0]}
+            eval "ld_db${BASH_REMATCH[0]}"
         fi
     done <$ld_f
     return 0

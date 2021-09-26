@@ -1,5 +1,8 @@
 #### Changelog
 
+* Version 0.9.1 - 2021-09-25
+    * Bug fix
+
 * Version 0.9.0 - 2021-05-16
     * Rework of utils
     * Remove unnecessary evals

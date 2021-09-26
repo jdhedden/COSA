@@ -243,6 +243,8 @@ exit $?
 
 <<'__NOTES__'
 
+https://openwrt.org/docs/guide-user/services/webserver/http.httpd
+
 cv_gen_page '4k2r/P2Nqpp1/1Q1Q1p2/2bb2n1/1p1pP3/6n1/1Q3P2/2KR3R' foo >~/tmp/page.html
 cv_gen_page -r '4k2r/P2Nqpp1/1Q1Q1p2/2bb2n1/1p1pP3/6n1/1Q3P2/2KR3R' foo >~/tmp/page2.html
 

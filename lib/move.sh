@@ -233,7 +233,7 @@ cm_parse_move () {
             fi
         fi
 
-    # Castling
+    # Castling (permits ohs and zeros)
     elif [[ ${pm_mv[move]} =~ ^[Oo0]-[Oo0](-[Oo0])?([+#]?)$ ]]; then
         pm_mv[castle]='O-O'
         if [[ -n ${BASH_REMATCH[1]} ]]; then
@@ -922,7 +922,7 @@ cm_set_board () {
     local -n sb_brd=$1
     local -a sb_fen=(${2:-$START_FEN})
 
-    sb_brd= ()
+    sb_brd=()
     sb_brd[fen]="${2:-$START_FEN}"
     sb_brd[board]=${sb_fen[0]}
     sb_brd[side]=${sb_fen[1]}

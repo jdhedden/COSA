@@ -8,7 +8,7 @@ put your configuration customizations in cfg/my_cfh.sh.
 __NOTES__
 
 
-COSA_VERSION='0.9.0'
+COSA_VERSION='0.9.1'
 
 . $COSA/lib/db.sh
 . $COSA/lib/move.sh

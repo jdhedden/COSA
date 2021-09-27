@@ -137,7 +137,7 @@ make_es () {
         if [[ -z ${es_es[$es_ii]} ]]; then
             es_seq+="$es_ii;"
         else
-            es_seq+="${es__es[$es_ii]};"
+            es_seq+="${es_es[$es_ii]};"
         fi
     done
     echo -n "[${es_seq:0:-1}m"

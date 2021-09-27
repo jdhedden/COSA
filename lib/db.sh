@@ -452,7 +452,7 @@ cd_set_moves () {
     local sm_mv sm_m
     for sm_mv in "${@:6}"; do
         # Ignore/remove turn numbers
-        if [[ $sm_mv =~ ^[0-9]+\.+(.*)$ ]]; then
+        if [[ $sm_mv =~ ^[0-9]+\.?(.*)$ ]]; then
             sm_mv=${BASH_REMATCH[1]}
             if [[ -z $sm_mv ]]; then
                 continue

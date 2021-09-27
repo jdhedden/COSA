@@ -3,13 +3,16 @@
 # ANSI escape sequences
 declare -A X=(
     [0]=$(make_es 0)
+
     [l]=$(make_es u)                # Line description
     [c]=$(make_es b y)              # Current move
-    [q]=$(make_es '48;2;48;48;48')  # White sQuare background
-    [w]=''                          # White pieces
-    [b]=$(make_es g)                # Black pieces
     [#]=$(make_es bl)               # Comments
     [a]=$(make_es b)                # Alt move to main line
+
+    [ww]=$(make_es '48;2;60;60;60')     # White piece on white square
+    [bw]=$(make_es g '48;2;60;60;60')   # Black (green) piece on white square
+    #[wb]=                              # White piece on black square
+    [bb]=$(make_es g)                   # Black (green) piece on black square
 )
 
 cv_gen_board () {
@@ -48,18 +51,28 @@ cv_gen_board () {
     gb_brd=()
 
     # 64 squares
-    local -a gb_sq_fmt
-    local -A gb_pcs
+    local -A gb_sq
     local -a gb_rks
     local gb_fls
     case $gb_fmt in
         -a) # ANSI escape sequences
             if $FANCY_BOARD; then
-                gb_sq_fmt=( " %s ${X[0]}" "${X[q]} %s ${X[0]}" )
-                gb_pcs=( [K]="${X[w]}♔" [Q]="${X[w]}♕" [R]="${X[w]}♖"
-                        [B]="${X[w]}♗" [N]="${X[w]}♘" [P]="${X[w]}♙"
-                        [k]="${X[b]}♚" [q]="${X[b]}♛" [r]="${X[b]}♜"
-                        [b]="${X[b]}♝" [n]="${X[b]}♞" [p]="${X[b]}♟" )
+                gb_sq=( # Empty white square
+                        [w]="${X[ww]}   ${X[0]}"
+                        # White pieces on white squares
+                        [Kw]="${X[ww]} ♚ ${X[0]}" [Qw]="${X[ww]} ♛ ${X[0]}" [Rw]="${X[ww]} ♜ ${X[0]}"
+                        [Bw]="${X[ww]} ♝ ${X[0]}" [Nw]="${X[ww]} ♞ ${X[0]}" [Pw]="${X[ww]} ♟ ${X[0]}"
+                        # Black pieces on white squares
+                        [kw]="${X[bw]} ♔ ${X[0]}" [qw]="${X[bw]} ♕ ${X[0]}" [rw]="${X[bw]} ♖ ${X[0]}"
+                        [bw]="${X[bw]} ♗ ${X[0]}" [nw]="${X[bw]} ♘ ${X[0]}" [pw]="${X[bw]} ♙ ${X[0]}"
+                        # Empty black square
+                        [b]='   '
+                        # White pieces on black squares
+                        [Kb]=" ♚ " [Qb]=" ♛ " [Rb]=" ♜ "
+                        [Bb]=" ♝ " [Nb]=" ♞ " [Pb]=" ♟ "
+                        # Black pieces on black squares
+                        [kb]="${X[bb]} ♔ ${X[0]}" [qb]="${X[bb]} ♕ ${X[0]}" [rb]="${X[bb]} ♖ ${X[0]}"
+                        [bb]="${X[bb]} ♗ ${X[0]}" [nb]="${X[bb]} ♘ ${X[0]}" [pb]="${X[bb]} ♙ ${X[0]}" )
                 if $gb_rot; then
                     gb_rks=('1 ' '2 ' '3 ' '4 ' '5 ' '6 ' '7 ' '8 ')
                     gb_fls='   h  g  f  e  d  c  b  a '
@@ -68,11 +81,16 @@ cv_gen_board () {
                     gb_fls='   a  b  c  d  e  f  g  h '
                 fi
             else
-                gb_sq_fmt=( "%s${X[0]}|" "${X[q]}%s${X[0]}|" )
-                gb_pcs=( [K]="${X[w]}K" [Q]="${X[w]}Q" [R]="${X[w]}R"
-                        [B]="${X[w]}B" [N]="${X[w]}N" [P]="${X[w]}p"
-                        [k]="${X[b]}K" [q]="${X[b]}Q" [r]="${X[b]}R"
-                        [b]="${X[b]}B" [n]="${X[b]}N" [p]="${X[b]}p" )
+                gb_sq=( [w]="${X[ww]}   ${X[0]}"
+                        [Kw]="${X[ww]} K ${X[0]}" [Qw]="${X[ww]} Q ${X[0]}" [Rw]="${X[ww]} R ${X[0]}"
+                        [Bw]="${X[ww]} B ${X[0]}" [Nw]="${X[ww]} N ${X[0]}" [Pw]="${X[ww]} P ${X[0]}"
+                        [kw]="${X[bw]} K ${X[0]}" [qw]="${X[bw]} Q ${X[0]}" [rw]="${X[bw]} R ${X[0]}"
+                        [bw]="${X[bw]} B ${X[0]}" [nw]="${X[bw]} N ${X[0]}" [pw]="${X[bw]} P ${X[0]}"
+                        [b]='   '
+                        [Kb]=" K " [Qb]=" Q " [Rb]=" R "
+                        [Bb]=" B " [Nb]=" N " [Pb]=" P "
+                        [kb]="${X[bb]} K ${X[0]}" [qb]="${X[bb]} Q ${X[0]}" [rb]="${X[bb]} R ${X[0]}"
+                        [bb]="${X[bb]} B ${X[0]}" [nb]="${X[bb]} N ${X[0]}" [pb]="${X[bb]} P ${X[0]}" )
                 if $gb_rot; then
                     gb_rks=('1|' '2|' '3|' '4|' '5|' '6|' '7|' '8|')
                     gb_fls='  h g f e d c b a '
@@ -83,9 +101,12 @@ cv_gen_board () {
             fi
             ;;
         -t) # Plain text
-            gb_sq_fmt=( '%s|' '%s|' )
-            gb_pcs=( [K]='K' [Q]='Q' [R]='R' [B]='B' [N]='N' [P]='P'
-                    [k]='k' [q]='q' [r]='r' [b]='b' [n]='n' [p]='p' )
+            gb_sq=( [w]=' '
+                    [Kw]='K' [Qw]='Q' [Rw]='R' [Bw]='B' [Nw]='N' [Pw]='P'
+                    [kw]='k' [qw]='q' [rw]='r' [bw]='b' [nw]='n' [pw]='p'
+                    [b]=' '
+                    [Kb]='K' [Qb]='Q' [Rb]='R' [Bb]='B' [Nb]='N' [Pb]='P'
+                    [kb]='k' [qb]='q' [rb]='r' [bb]='b' [nb]='n' [pb]='p' )
             if $gb_rot; then
                 gb_rks=('1|' '2|' '3|' '4|' '5|' '6|' '7|' '8|')
                 gb_fls='  h g f e d c b a '
@@ -95,38 +116,40 @@ cv_gen_board () {
             fi
             ;;
         -h) # HTML
-            gb_sq_fmt=( '<div class="black">%s</div>'
-                     '<div class="white">%s</div>' )
-            gb_pcs=( [K]='&#9812;' [Q]='&#9813;' [R]='&#9814;'
-                    [B]='&#9815;' [N]='&#9816;' [P]='&#9817;'
-                    [k]='&#9818;' [q]='&#9819;' [r]='&#9820;'
-                    [b]='&#9821;' [n]='&#9822;' [p]='&#9823;' )
+            gb_sq=( [w]='<div class="white">&nbsp;</div>'
+                    [Kw]='<div class="white">&#9812;</div>' [Qw]='<div class="white">&#9813;</div>' [Rw]='<div class="white">&#9814;</div>'
+                    [Bw]='<div class="white">&#9815;</div>' [Nw]='<div class="white">&#9816;</div>' [Pw]='<div class="white">&#9817;</div>'
+                    [kw]='<div class="white">&#9818;</div>' [qw]='<div class="white">&#9819;</div>' [rw]='<div class="white">&#9820;</div>'
+                    [bw]='<div class="white">&#9821;</div>' [nw]='<div class="white">&#9822;</div>' [pw]='<div class="white">&#9823;</div>'
+                    [b]='<div class="black">&nbsp;</div>'
+                    [Kb]='<div class="black">&#9812;</div>' [Qb]='<div class="black">&#9813;</div>' [Rb]='<div class="black">&#9814;</div>'
+                    [Bb]='<div class="black">&#9815;</div>' [Nb]='<div class="black">&#9816;</div>' [Pb]='<div class="black">&#9817;</div>'
+                    [kb]='<div class="black">&#9818;</div>' [qb]='<div class="black">&#9819;</div>' [rb]='<div class="black">&#9820;</div>'
+                    [bb]='<div class="black">&#9821;</div>' [nb]='<div class="black">&#9822;</div>' [pb]='<div class="black">&#9823;</div>' )
             # TODO - HTML board lacks rank numbers/file letters
             gb_rks=('<div class="chessboard">' '' '' '' '' '' '' '')
             gb_fls='</div>'
             ;;
     esac
-    local gb_clr=0   # 0 = black square; 1 = white square
-                   # Starts from a8 which is black
+                     # Starts from a8 which is white
 
-    local gb_ch gb_sq gb_sqs
+    local gb_ch gb_sqs
+    local gb_clr=w   # Color of square
     for gb_ch in $(echo $gb_fen | grep -o .); do
         case $gb_ch in
             /)
-                gb_clr=$(( (gb_clr+1)%2 ))
+                if [[ $gb_clr == w ]]; then gb_clr=b; else gb_clr=w; fi
                 ;;
             [1-8])
                 while [[ $gb_ch -gt 0 ]]; do
-                    printf -v gb_sq "${gb_sq_fmt[gb_clr]}" ' '
-                    gb_sqs+=("$gb_sq")
-                    gb_clr=$(( (gb_clr+1)%2 ))
+                    gb_sqs+=("${gb_sq[$gb_clr]}")
+                    if [[ $gb_clr == w ]]; then gb_clr=b; else gb_clr=w; fi
                     (( gb_ch-- ))
                 done
                 ;;
             *)
-                printf -v gb_sq "${gb_sq_fmt[gb_clr]}" "${gb_pcs[$gb_ch]}"
-                gb_sqs+=("$gb_sq")
-                gb_clr=$(( (gb_clr+1)%2 ))
+                gb_sqs+=("${gb_sq[$gb_ch$gb_clr]}")
+                if [[ $gb_clr == w ]]; then gb_clr=b; else gb_clr=w; fi
                 ;;
         esac
     done
